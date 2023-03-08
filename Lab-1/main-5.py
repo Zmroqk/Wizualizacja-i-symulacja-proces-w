@@ -23,10 +23,10 @@ print('Pick functions to display, write them all using separetor' +
       'example: x,x2,x3')
 print()
 
-picked_functions = str(input('Provide functions by delimeter')).split(',')
+picked_functions = str(input('Provide functions by delimeter: ')).split(',')
 
 for fun in picked_functions:
-    chart_color = str(input(f'Provide chart color for {fun} function'))
+    chart_color = str(input(f'Provide chart color for {fun} function: '))
     function, label = functions[fun]
     ax.plot(x, function, color=chart_color, label=label)
 
