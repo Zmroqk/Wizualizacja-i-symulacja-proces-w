@@ -10,10 +10,7 @@ k = float(input("Provide k: "))
 
 
 def y2(time):
-   if time < D:
-       return 0
-   else:
-       return -k * (1 - np.exp(-(time - D)/T)) * cm.strangeMathematicalFunction(time - D)
+    return -k * (1 - np.exp(-(time - D)/T)) * cm.strangeMathematicalFunction(time - D)
 
 
 t = np.linspace(0, 10, 1000)
