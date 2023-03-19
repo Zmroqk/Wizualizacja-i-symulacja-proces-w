@@ -1,43 +1,27 @@
+import matplotlib.pyplot as plt
 import numpy as np
-import matplotlib.pyplot as plot
-import customMath as cm
 
 m = float(input("Provide m: "))
 b = float(input("Provide b: "))
 k = float(input("Provide k: "))
+A0 = float(input("Provide starting spring pos: "))
 
-# m = T0^2
-T0 = np.sqrt(m)
-# b = 2ET0
-E = b/(2*T0)
-W0 = 1/T0
-D = E*W0
+# F = mx + bx + kx
+# m*(d^2x/dt^2) + b*(dx/dt) + kx = 0
+# x(t) = A0 * e^(-b*t/2m) * cos(wt + q)
+# w = sqrt((k/m) - (b/2m)^2)
+# x(t) = A0 * e^(-b*t/2m) * cos(sqrt((k/m) - (b/2m)^2) * t)
 
-# if E < 0 or E >= 1:
-#    exit()
+def spring_position(time):
+    return A0 * np.power(np.e, (-b * time) / (2 * m)) * np.cos(np.sqrt((k / m) - (b / (2 * m))**2) * time)
 
-t = np.linspace(0, 1000, 1000)
+t = np.linspace(0, 100, 1000)
 
-x0 = 5
-v0 = 0
+_, ax = plt.subplots(figsize=(10,5))
+ax.plot(t, spring_position(t), color='blue', label='y=x(t)')
 
-#y = k * (1 - ((np.exp(-E * W0 * t)/(np.sqrt(1 - E**2))) * np.sin(W0 * np.sqrt(1 - E**2) * t + np.arctan(np.sqrt(W0**2 - D**2)/D))))
-
-Beta = b / 2 * m
-W0 = np.sqrt(k / m)
-
-rPlus = -Beta + np.sqrt(Beta**2 - W0**2)
-rMinus = -Beta - np.sqrt(Beta**2 - W0**2)
-A = x0 * (rPlus*x0 - v0) / (rMinus - rPlus)
-B = -1 * (rPlus * x0 - v0) / (rMinus - rPlus)
-
-x = A * np.exp(rPlus * t) + B * np.exp(rMinus * t)
-
-_, ax = plot.subplots(figsize=(10, 5))
-
-ax.plot(t, x)
+ax.set_xlabel("time(seconds)")
+ax.set_ylabel("position(m)")
+ax.set_title("Spring Position")
 ax.legend()
-ax.set_xlabel('time')
-ax.set_ylabel('???')
-
-plot.show()
+plt.show()
