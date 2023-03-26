@@ -2,14 +2,12 @@ import numpy as np
 import matplotlib.pyplot as plot
 import customMath as cm
 
-a = float(input("Provide a: "))
-b = float(input("Provide b: "))
-Ti = b
-T = a/b
+k = float(input("Provide k: "))
+T = float(input("Provide T: "))
 
 t = np.linspace(0, 10, 1000)
 
-y = (1/Ti) * (t - T * (1 - np.exp(-t/T)))
+y = k * (1 - np.exp(-t/T))
 _, ax = plot.subplots(figsize=(10, 5))
 
 

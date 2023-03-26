@@ -4,7 +4,7 @@ import numpy as np
 m = float(input("Provide m: "))
 b = float(input("Provide b: "))
 k = float(input("Provide k: "))
-A0 = float(input("Provide starting spring pos: "))
+F = float(input("Provide force: "))
 
 # F = mx + bx + kx
 # m*(d^2x/dt^2) + b*(dx/dt) + kx = 0
@@ -12,13 +12,27 @@ A0 = float(input("Provide starting spring pos: "))
 # w = sqrt((k/m) - (b/2m)^2)
 # x(t) = A0 * e^(-b*t/2m) * cos(sqrt((k/m) - (b/2m)^2) * t)
 
-def spring_position(time):
-    return A0 * np.power(np.e, (-b * time) / (2 * m)) * np.cos(np.sqrt((k / m) - (b / (2 * m))**2) * time)
+def delta(b, m, k):
+   return np.sqrt(np.power(b, 2) - 4 * m * k)
+
+def s1(b, m, k):
+   return (-b - delta(b, m, k))/(2 * m)
+
+def s2(b, m, k):
+   return (-b + delta(b, m, k))/(2 * m)
+
+def A(F, b, m, k):
+   return F/(m * (s1(b, m, k) - s2(b, m, k)))
+
+def B(F, b, m, k):
+   return F/(m * (s2(b, m, k) - s1(b, m, k)))
 
 t = np.linspace(0, 100, 1000)
 
+y = A(F, b, m, k) * np.exp(s1(b, m, k) * t) + B(F, b, m, k) * np.exp(s2(b, m, k) * t)
+
 _, ax = plt.subplots(figsize=(10,5))
-ax.plot(t, spring_position(t), color='blue', label='y=x(t)')
+ax.plot(t, y, color='blue', label='y=x(t)')
 
 ax.set_xlabel("time(seconds)")
 ax.set_ylabel("position(m)")
