@@ -22,14 +22,17 @@ def s2(b, m, k):
    return (-b + delta(b, m, k))/(2 * m)
 
 def A(F, b, m, k):
-   return F/(m * (s1(b, m, k) - s2(b, m, k)))
+   return F/(m * s1(b, m, k) * s2(b, m, k))
 
 def B(F, b, m, k):
-   return F/(m * (s2(b, m, k) - s1(b, m, k)))
+   return F/(m * (np.power(s1(b, m, k), 2) - s1(b, m, k) * s2(b, m, k)))
+
+def C(F, b, m, k):
+   return F/(m * (np.power(s2(b, m, k), 2) - s1(b, m, k) * s2(b, m, k)))
 
 t = np.linspace(0, 100, 1000)
 
-y = A(F, b, m, k) * np.exp(s1(b, m, k) * t) + B(F, b, m, k) * np.exp(s2(b, m, k) * t)
+y = A(F, b, m, k) + B(F, b, m, k) * np.exp(s1(b, m, k) * t) + C(F, b, m, k) * np.exp(s2(b, m, k) * t)
 
 _, ax = plt.subplots(figsize=(10,5))
 ax.plot(t, y, color='blue', label='y=x(t)')
