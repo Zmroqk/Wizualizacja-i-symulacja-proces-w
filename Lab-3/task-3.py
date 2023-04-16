@@ -17,7 +17,7 @@ constraints = {
 }
 
 is_chosing = True
-if input("complex linear or circular? y/n") == 'n':
+if input("complex linear or circular? y/n: ") == 'n':
     is_chosing = False
 
 
@@ -25,7 +25,7 @@ while(is_chosing):
     con = input("Provide which movement lin or cir, startT, maxT and the value - ex: lin,0.1,2,0.2: ").split(",")
     constraints[con[0]].append((float(con[1]), float(con[2]), float(con[3])))
 
-    if input("Continue? y/n") == 'n':
+    if input("Continue? y/n: ") == 'n':
         is_chosing = False
 
 
