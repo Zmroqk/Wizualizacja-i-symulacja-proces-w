@@ -7,7 +7,7 @@ side_number = ''
 side_length = ''
 
 
-while (not side_number.isnumeric()):
+while(not side_number.isnumeric()):
     side_number = input("Provide number of polygon sides (min 3 sides): ")
 
 while(not side_length.isnumeric()):

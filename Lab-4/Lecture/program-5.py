@@ -32,20 +32,34 @@ def drawCube():
     glEnd()
     glutSwapBuffers()
 
-
+def show():
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+    glViewport(0, 0, 640, 480)
+    glMatrixMode(GL_PROJECTION)
+    glLoadIdentity()
+    # Program 05a
+    glFrustum(-2, 2, -2, 2, 1, 10)
+    # Program 05b
+    #glOrtho(-2, 2, -2, 2, 1, 10)
+    glMatrixMode(GL_MODELVIEW)
+    glLoadIdentity()
+    glPushMatrix()
+    glTranslate(2, 0, -3)
+    drawCube()
+    glPopMatrix()
+    glTranslate(-1 ,-2, -5)
+    drawCube()
+    glutSwapBuffers()
 
 
 glutInit()
-glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE)
+glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH)
 glutInitWindowSize(640, 480)
 glutInitWindowPosition(100, 100)
-glutCreateWindow("Program 05")
+glutCreateWindow("Program 05a")
+# glutCreateWindow("Program 05b")
 glClearColor(1.0, 1.0, 1.0, 1.0)
-glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-glScalef(0.5, 0.5, 0.5)
-glRotate(1, 0, 0, 1)
-
-glEnable(GL_BLEND)
 glEnable(GL_DEPTH_TEST)
-glutDisplayFunc(drawCube)
+glDepthFunc(GL_LESS)
+glutDisplayFunc(show)
 glutMainLoop()
