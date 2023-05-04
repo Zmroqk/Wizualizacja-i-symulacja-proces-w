@@ -4,6 +4,8 @@ from typing import Tuple
 import time
 import math
 
+import numpy as np
+
 class Window:
    
    def __init__(self
@@ -65,6 +67,7 @@ class Window:
          self.background = (self.background[0] - 0.1, self.background[1] - 0.1, self.background[2] - 0.1, self.background[3] - 0.1)
       else:
          self.__handleLocation(char)
+         self.__handleRotation(char)
       glutPostRedisplay()
 
    def __handleLocation(self, char):
@@ -80,6 +83,21 @@ class Window:
          glTranslate(0, 0, -1)
       elif char == b'e':
          glTranslate(0, 0, 1)
+
+   def __handleRotation(self, char):
+      print(char)
+      if char == b'i':
+         glRotate(10, 0, 1, 0)
+      elif char == b'k':
+         glRotate(10, 0, -1, 0)
+      elif char == b'j':
+         glRotate(10, 1, 0, 0)
+      elif char == b'l':
+         glRotate(10, -1, 0, 0)
+      elif char == b'u':
+         glRotate(10, 0, 0, 1)
+      elif char == b'o':
+         glRotate(10, 0, 0, -1)
 
    def __handleCommand(self):
       print('Executing command')
@@ -101,6 +119,25 @@ class Window:
 
    def __polygon(self):
       pass
+
+   def __circle(self, side_number, side_length):
+      def __circle_gl():
+         angleIncrement = 360. / side_number
+         angleIncrement *= np.pi / 180
+
+         glBegin(GL_TRIANGLE_FAN)
+
+         angle = 0.
+
+         
+         r = side_length / (2 * np.sin(side_length / 2))
+
+         for _ in range(side_number):
+            glVertex3f(r * np.cos(angle), np.sin(angle), 0.)
+            angle += angleIncrement
+      
+      return __circle_gl
+
 
    def __cuboid(self, a, b, c):
       def __cuboid_gl():
