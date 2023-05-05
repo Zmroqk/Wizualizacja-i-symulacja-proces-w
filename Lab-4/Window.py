@@ -121,6 +121,8 @@ class Window:
          self.showFunc = self.__circle(int(params[0]), float(params[1]), params[2] == 'True')
       elif self.command.startswith('cylinder'):
          self.showFunc = self.__cylinder(float(params[0]), float(params[1]))
+      elif self.command.startswith('sphere'):
+         self.showFunc = self.__sphere(float(params[0]), int(params[1]))
       elif self.command.startswith('autorotation'):
          self.autoRotationEnabled = True
          self.rotation = [1, 1, 1]
@@ -137,9 +139,11 @@ class Window:
    def __windowLoop(self):
       glClearColor(*self.background)
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+      glPushMatrix()
       if self.showFunc is not None:
          self.showFunc()
       glutSwapBuffers()
+      glPopMatrix()
 
    def __timerLoop(self, time):
       glutPostRedisplay()
@@ -296,6 +300,21 @@ class Window:
          glVertex(v[0]);glVertex(v[2]);glVertex(v[3]) # SIDE
          glEnd()
       return __pyramid_gl
+
+   def __sphere(self, r, rings):
+      def __sphere_gl():
+         n = self.circle_quality
+         a = 2 * r * np.tan(np.pi/n) # a = 2r tg(pi/n)
+         glBegin(GL_POINTS)
+         glVertex(0,0,0)
+         glEnd()
+         rotationChange = 180./rings
+         for i in range(rings):
+            glPushMatrix()
+            glRotatef(rotationChange * i, 0, 0, 1)
+            self.__circle(n, a, False)()       
+            glPopMatrix()
+      return __sphere_gl
 
    def exit(self):
       self.run = False
