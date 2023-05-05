@@ -111,8 +111,8 @@ class Window:
    def __handleCommand(self):
       print('Executing command')
       params = self.command.split(' ')[1:]
-      if self.command == 'cube':
-         self.showFunc = self.__cube
+      if self.command.startswith('cube'):
+         self.showFunc = self.__cube(params[0])
       elif self.command.startswith('cuboid'):
          self.showFunc = self.__cuboid(*map(lambda x: int(x), params))
       elif self.command.startswith('pyramid'):
@@ -212,6 +212,13 @@ class Window:
          glEnd()
       return __cone_gl
 
+
+   def __cube(self, a):
+      def __cube_gl():
+         self.__cuboid(a, a, a)()
+      
+      return __cube_gl
+
    def __cuboid(self, a, b, c):
       def __cuboid_gl():
          v = [
@@ -289,36 +296,6 @@ class Window:
          glVertex(v[0]);glVertex(v[2]);glVertex(v[3]) # SIDE
          glEnd()
       return __pyramid_gl
-
-   def __cube(self):
-      p = [
-            [-1, -1, -1], [1, -1, -1], [1, 1, -1], [-1, 1, -1],
-            [-1, -1, 1], [1, -1, 1], [1, 1, 1], [-1, 1, 1]
-      ]
-
-      glBegin(GL_TRIANGLES)
-      glColor3f(1.0, 0.0, 0.0)
-      glVertex(p[0])
-      glVertex(p[1])
-      glVertex(p[2])
-      glVertex(p[0])
-      glVertex(p[2])
-      glVertex(p[3])
-      glColor3f(0.0, 1.0, 0.0)
-      glVertex(p[1])
-      glVertex(p[5])
-      glVertex(p[2])
-      glVertex(p[2])
-      glVertex(p[5])
-      glVertex(p[6])
-      glColor3f(0.0, 0.0, 1.0)
-      glVertex(p[0])
-      glVertex(p[4])
-      glVertex(p[3])
-      glVertex(p[3])
-      glVertex(p[4])
-      glVertex(p[7])
-      glEnd()
 
    def exit(self):
       self.run = False
