@@ -14,7 +14,7 @@ class Window:
       , width = 640
       , height = 480
       , name = "Window"
-      , background : Tuple[float, float, float, float] = (1.,1.,1.,1.)
+      , background : Tuple[float, float, float, float] = (0.,0.,0.,0.)
       ):
       self.width = width
       self.height = height
@@ -26,6 +26,9 @@ class Window:
       self.command = ""
       self.matrix_stack_count = 0
       self.figures = []
+      self.circle_quality = 20
+      self.autoRotationEnabled = False
+      self.rotation = [1, 1, 1]
 
    def SetupWindow(self):
       glutInit()
@@ -88,35 +91,48 @@ class Window:
          glTranslate(0, 0, 1)
 
    def __handleRotation(self, char):
-      if char == b'i':
-         glRotate(10, 0, 1, 0)
-      elif char == b'k':
-         glRotate(10, 0, -1, 0)
-      elif char == b'j':
-         glRotate(10, 1, 0, 0)
-      elif char == b'l':
-         glRotate(10, -1, 0, 0)
-      elif char == b'u':
-         glRotate(10, 0, 0, 1)
+      mod = glutGetModifiers()
+      multiplier = 1
+      if mod == GLUT_ACTIVE_ALT:
+         multiplier = 6
+      if char == b'u':
+         glRotate(5 * multiplier, 0, 1, 0)
       elif char == b'o':
-         glRotate(10, 0, 0, -1)
+         glRotate(5 * multiplier, 0, -1, 0)
+      elif char == b'i':
+         glRotate(5 * multiplier, 1, 0, 0)
+      elif char == b'k':
+         glRotate(5 * multiplier, -1, 0, 0)
+      elif char == b'j':
+         glRotate(5 * multiplier, 0, 0, 1)
+      elif char == b'l':
+         glRotate(5 * multiplier, 0, 0, -1)
 
    def __handleCommand(self):
       print('Executing command')
+      params = self.command.split(' ')[1:]
       if self.command == 'cube':
          self.showFunc = self.__cube
       elif self.command.startswith('cuboid'):
-         params = self.command.split(' ')[1:]
          self.showFunc = self.__cuboid(*map(lambda x: int(x), params))
       elif self.command.startswith('pyramid'):
-         params = self.command.split(' ')[1:]
          self.showFunc = self.__pyramid(*map(lambda x: int(x), params))
       elif self.command.startswith('circle'):
-         params = self.command.split(' ')[1:]
          self.showFunc = self.__circle(int(params[0]), float(params[1]), params[2] == 'True')
       elif self.command.startswith('cylinder'):
-         params = self.command.split(' ')[1:]
          self.showFunc = self.__cylinder(float(params[0]), float(params[1]))
+      elif self.command.startswith('autorotation'):
+         self.autoRotationEnabled = True
+         self.rotation = [1, 1, 1]
+         glutTimerFunc(17, self.__autoRotation, params[0])
+      elif self.command.startswith('disable-autorotation'):
+         self.autoRotationEnabled = False
+      elif self.command.startswith('cone'):
+         self.showFunc = self.__cone(float(params[0]), float(params[1]))
+      elif self.command.startswith('color'):
+         glColor3f(float(params[0]), float(params[1]), float(params[2]))
+      elif self.command.startswith('quality'):
+         self.circle_quality = int(params[0])
 
    def __windowLoop(self):
       glClearColor(*self.background)
@@ -126,14 +142,13 @@ class Window:
       glutSwapBuffers()
 
    def __timerLoop(self, time):
-      glColor3f(random.random(), random.random(), random.random())
       glutPostRedisplay()
       glutTimerFunc(17, self.__timerLoop, 0)
 
    def __polygon(self):
       pass
 
-   def __circle(self, side_number, side_length, is2d = True, x = 0., y = 0.9):
+   def __circle(self, side_number, side_length, is2d = True, x = 0., y = 0.):
       def __circle_gl():
          angleIncrement = 360. / side_number
          angleIncrement *= np.pi / 180
@@ -160,7 +175,7 @@ class Window:
 
    def __cylinder(self, r, h):
       def __cylinder_gl():
-         n = 10 
+         n = self.circle_quality
          a = 2 * r * np.tan(np.pi/n) # a = 2r tg(pi/n)
          self.__circle(n, a, False)()
          self.__circle(n, a, False, 0, h)()
@@ -174,6 +189,28 @@ class Window:
          glVertex(vHigh[0]);glVertex(vHigh[-1]);glVertex(vLow[-1])
          glEnd()
       return __cylinder_gl
+
+   def __autoRotation(self, speed):
+      ox = np.array([[1, 0, 0], [0, np.cos(1), -np.sin(1)], [0, np.sin(1), np.cos(1)]])
+      newRotation = np.matmul(self.rotation, ox)
+      glRotatef(speed, newRotation[0] - self.rotation[0], newRotation[1] - self.rotation[1], newRotation[2] - self.rotation[2])
+      self.rotation = newRotation
+      if self.autoRotationEnabled is True:
+         glutTimerFunc(17, self.__autoRotation, speed)
+
+   def __cone(self, r, h):
+      def __cone_gl():
+         n = self.circle_quality
+         a = 2 * r * np.tan(np.pi/n) # a = 2r tg(pi/n)
+         self.__circle(n, a, False)()
+         v = self.figures[-1]
+         vTop = [0., h, 0.]
+         glBegin(GL_TRIANGLES)
+         for i in range(len(v) - 1):
+            glVertex(v[i]);glVertex(v[i+1]);glVertex(vTop)
+         glVertex(v[0]);glVertex(v[-1]);glVertex(vTop)
+         glEnd()
+      return __cone_gl
 
    def __cuboid(self, a, b, c):
       def __cuboid_gl():
