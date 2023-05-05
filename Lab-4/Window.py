@@ -1,6 +1,8 @@
 from OpenGL.GLUT import *
 from OpenGL.GL import *
+from OpenGL.GLUT.fonts import *
 from typing import Tuple
+import random
 import time
 import math
 
@@ -22,6 +24,8 @@ class Window:
       self.run = False
       self.commandMode = False
       self.command = ""
+      self.matrix_stack_count = 0
+      self.figures = []
 
    def SetupWindow(self):
       glutInit()
@@ -33,16 +37,14 @@ class Window:
       glDepthFunc(GL_LESS)
       glutKeyboardFunc(self.__keyboardCommand)
       glutDisplayFunc(self.__windowLoop)
+      glutTimerFunc(17, self.__timerLoop, 0)
       self.run = True
       self.__setupViewPort()
       glutMainLoop()
 
    def __setupViewPort(self):
       glViewport(0, 0, 640, 480)
-      glMatrixMode(GL_PROJECTION)
-      glLoadIdentity()
-      glFrustum(-2, 2, -2, 2, 1, 10)
-      glMatrixMode(GL_MODELVIEW)
+      self.__perspecitve_rendering()
 
    def __keyboardCommand(self, char, x, y):
       if self.commandMode and char != b'\r':
@@ -51,6 +53,7 @@ class Window:
          else:   
             self.command += char.decode('utf-8')
          os.system('clear')
+         # self.__print_text(char)
          print(self.command)
       elif self.commandMode and char == b'\r':
          self.commandMode = False
@@ -85,7 +88,6 @@ class Window:
          glTranslate(0, 0, 1)
 
    def __handleRotation(self, char):
-      print(char)
       if char == b'i':
          glRotate(10, 0, 1, 0)
       elif char == b'k':
@@ -109,6 +111,12 @@ class Window:
       elif self.command.startswith('pyramid'):
          params = self.command.split(' ')[1:]
          self.showFunc = self.__pyramid(*map(lambda x: int(x), params))
+      elif self.command.startswith('circle'):
+         params = self.command.split(' ')[1:]
+         self.showFunc = self.__circle(int(params[0]), float(params[1]), params[2] == 'True')
+      elif self.command.startswith('cylinder'):
+         params = self.command.split(' ')[1:]
+         self.showFunc = self.__cylinder(float(params[0]), float(params[1]))
 
    def __windowLoop(self):
       glClearColor(*self.background)
@@ -117,10 +125,15 @@ class Window:
          self.showFunc()
       glutSwapBuffers()
 
+   def __timerLoop(self, time):
+      glColor3f(random.random(), random.random(), random.random())
+      glutPostRedisplay()
+      glutTimerFunc(17, self.__timerLoop, 0)
+
    def __polygon(self):
       pass
 
-   def __circle(self, side_number, side_length):
+   def __circle(self, side_number, side_length, is2d = True, x = 0., y = 0.9):
       def __circle_gl():
          angleIncrement = 360. / side_number
          angleIncrement *= np.pi / 180
@@ -128,16 +141,39 @@ class Window:
          glBegin(GL_TRIANGLE_FAN)
 
          angle = 0.
-
          
          r = side_length / (2 * np.sin(side_length / 2))
 
+         v = []
+
          for _ in range(side_number):
-            glVertex3f(r * np.cos(angle), np.sin(angle), 0.)
+            if is2d is True:
+               v.append([r * np.cos(angle) + x, np.sin(angle) + y, 0.])
+               glVertex3f(r * np.cos(angle) + x, np.sin(angle) + y, 0.)
+            else:
+               v.append([r * np.cos(angle) + x, y, np.sin(angle)])
+               glVertex3f(r * np.cos(angle) + x, y, np.sin(angle))
             angle += angleIncrement
-      
+         glEnd()
+         self.figures.append(v)
       return __circle_gl
 
+   def __cylinder(self, r, h):
+      def __cylinder_gl():
+         n = 10 
+         a = 2 * r * np.tan(np.pi/n) # a = 2r tg(pi/n)
+         self.__circle(n, a, False)()
+         self.__circle(n, a, False, 0, h)()
+         vLow = self.figures[-2]
+         vHigh = self.figures[-1]
+         glBegin(GL_TRIANGLES)
+         for i in range(len(vLow) - 1):
+            glVertex(vLow[i]);glVertex(vLow[i+1]);glVertex(vHigh[i])
+            glVertex(vHigh[i]);glVertex(vHigh[i+1]);glVertex(vLow[i+1])
+         glVertex(vLow[0]);glVertex(vLow[-1]);glVertex(vHigh[0])
+         glVertex(vHigh[0]);glVertex(vHigh[-1]);glVertex(vLow[-1])
+         glEnd()
+      return __cylinder_gl
 
    def __cuboid(self, a, b, c):
       def __cuboid_gl():
@@ -161,6 +197,46 @@ class Window:
          glVertex(v[0]);glVertex(v[7]);glVertex(v[4]) # SIDE 4
          glEnd()
       return __cuboid_gl
+
+   def __print_text(self, char):
+      self.__ortogtaphic_rendering()
+      glColor3f(0.0, 1.0, 0.0)
+      glRasterPos2f(10, 10)
+      print(GLUT_BITMAP_TIMES_ROMAN_24)
+      glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, int.from_bytes(char, 'big'))
+      self.__reset_matrixes()
+      # self.__perspecitve_rendering()
+
+   def __perspecitve_rendering(self):
+      if self.matrix_stack_count > 0:
+         self.__reset_matrixes()
+      glMatrixMode(GL_PROJECTION)
+      self.__push_matrixes()
+      glFrustum(-2, 2, -2, 2, 1, 10)
+      glMatrixMode(GL_MODELVIEW)
+      self.__push_matrixes()
+      self.matrix_stack_count += 1
+
+   def __ortogtaphic_rendering(self):
+      if self.matrix_stack_count > 0:
+         self.__reset_matrixes()
+      glMatrixMode(GL_PROJECTION)
+      self.__push_matrixes()
+      glOrtho(0, self.width, 0, self.height, 1, 10)
+      glMatrixMode(GL_MODELVIEW)
+      self.__push_matrixes()
+      self.matrix_stack_count += 1
+
+   def __push_matrixes(self):
+      glPushMatrix()
+      glLoadIdentity()
+
+   def __reset_matrixes(self):
+      glMatrixMode(GL_PROJECTION)
+      glPopMatrix()
+      glMatrixMode(GL_MODELVIEW)
+      glPopMatrix()
+      self.matrix_stack_count -= 1
 
    def __pyramid(self, h, d):
       def __pyramid_gl():
@@ -211,3 +287,5 @@ class Window:
       self.run = False
       exit(-1)
 
+window = Window()
+window.SetupWindow()
