@@ -6,6 +6,7 @@ import random
 import time
 import math
 import ctypes
+import vectorOperations as vo
 
 import numpy as np
 
@@ -30,7 +31,9 @@ class Window:
       self.figures = []
       self.circle_quality = 20
       self.autoRotationEnabled = False
-      self.rotation = [1, 1, 1]
+      self.rotation = 0
+      self.rotationType = vo.Rotation.OX
+      self.color = [1, 1, 1]
 
    def SetupWindow(self):
       glutInit()
@@ -125,14 +128,21 @@ class Window:
          self.showFunc = self.__sphere(float(params[0]), int(params[1]))
       elif self.command.startswith('autorotation'):
          self.autoRotationEnabled = True
-         self.rotation = [1, 1, 1]
-         glutTimerFunc(17, self.__autoRotation, params[0])
+         self.rotation = 0
+         if params[1] == 'x':
+            self.rotationType = vo.Rotation.OX
+         elif params[1] == 'y':
+            self.rotationType = vo.Rotation.OY
+         else:
+            self.rotationType = vo.Rotation.OZ
+         glutTimerFunc(17, self.__autoRotation, int(params[0]))
       elif self.command.startswith('disable-autorotation'):
          self.autoRotationEnabled = False
       elif self.command.startswith('cone'):
          self.showFunc = self.__cone(float(params[0]), float(params[1]))
       elif self.command.startswith('color'):
-         glColor3f(float(params[0]), float(params[1]), float(params[2]))
+         self.color = [float(params[0]), float(params[1]), float(params[2])]
+         glColor3f(*self.color)
       elif self.command.startswith('quality'):
          self.circle_quality = int(params[0])
       elif self.command.startswith('exit'):
@@ -172,11 +182,15 @@ class Window:
 
          for _ in range(side_number):
             if is2d is True:
-               v.append([r * np.cos(angle) + x, np.sin(angle) + y, 0.])
-               glVertex3f(r * np.cos(angle) + x, np.sin(angle) + y, 0.)
+               vTemp = [r * np.cos(angle) + x, np.sin(angle) + y, 0.]
+               vTemp = vo.applyRotationSingle(vTemp, self.rotation, self.rotationType)
+               v.append(vTemp)
+               glVertex3f(*vTemp)
             else:
-               v.append([r * np.cos(angle) + x, y, np.sin(angle)])
-               glVertex3f(r * np.cos(angle) + x, y, np.sin(angle))
+               vTemp = [r * np.cos(angle) + x, y, np.sin(angle)]
+               vTemp = vo.applyRotationSingle(vTemp, self.rotation, self.rotationType)
+               v.append(vTemp)
+               glVertex3f(*vTemp)
             angle += angleIncrement
          glEnd()
          self.figures.append(v)
@@ -200,12 +214,9 @@ class Window:
       return __cylinder_gl
 
    def __autoRotation(self, speed):
-      ox = np.array([[1, 0, 0], [0, np.cos(1), -np.sin(1)], [0, np.sin(1), np.cos(1)]])
-      newRotation = np.matmul(self.rotation, ox)
-      glRotatef(speed, newRotation[0] - self.rotation[0], newRotation[1] - self.rotation[1], newRotation[2] - self.rotation[2])
-      self.rotation = newRotation
+      self.rotation += 1/(2*np.pi)
       if self.autoRotationEnabled is True:
-         glutTimerFunc(17, self.__autoRotation, speed)
+         glutTimerFunc(int(1000./speed), self.__autoRotation, speed)
 
    def __cone(self, r, h):
       def __cone_gl():
@@ -214,6 +225,7 @@ class Window:
          self.__circle(n, a, False)()
          v = self.figures[-1]
          vTop = [0., h, 0.]
+         vTop = vo.applyRotationSingle(vTop, self.rotation, self.rotationType)
          glBegin(GL_TRIANGLES)
          for i in range(len(v) - 1):
             glVertex(v[i]);glVertex(v[i+1]);glVertex(vTop)
@@ -234,8 +246,9 @@ class Window:
             [-a/2, -b/2, -c/2], [a/2, -b/2, -c/2], [a/2, -b/2, c/2], [-a/2, -b/2, c/2],
             [-a/2, b/2, -c/2], [a/2, b/2, -c/2], [a/2, b/2, c/2], [-a/2, b/2, c/2],
          ]
+         v = vo.applyRotation(v, self.rotation , self.rotationType)
+
          glBegin(GL_TRIANGLES)
-         glColor3f(1.0, 0.0, 0.0)
          glVertex(v[0]);glVertex(v[1]);glVertex(v[2]) # DOWN
          glVertex(v[0]);glVertex(v[2]);glVertex(v[3]) # DOWN
          glVertex(v[4]);glVertex(v[5]);glVertex(v[6]) # UP
@@ -256,6 +269,7 @@ class Window:
       width = self.__get_string_width("Command: ")
       self.__print_string("Command: ")
       self.__print_string(self.command, startX=10 + width)
+      glColor3f(*self.color)
 
    def __print_help(self):
       glColor3f(1.0, 1.0, 1.0)
@@ -321,6 +335,7 @@ class Window:
             [-d/2, 0, 0], [d/2, 0, 0], [0, 0, (math.sqrt(3) * d)/2],
             [0, h, (math.sqrt(3) * d)/4]
          ]
+         v = vo.applyRotation(v, self.rotation, self.rotationType)
          glBegin(GL_TRIANGLES)
          glColor3f(1.0, 0.0, 0.0)
          glVertex(v[0]);glVertex(v[1]);glVertex(v[2]) # DOWN
@@ -336,18 +351,19 @@ class Window:
          a = 2 * r * np.tan(np.pi/n) # a = 2r tg(pi/n)
          self.__circle(n, a, False)()
          v = self.figures[-1]
-         glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT)
+         glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT) # TODO Remove <--- Make method that will generate circle points without graphics
          glBegin(GL_POINTS)
          glVertex(0,0,0)
          glEnd()
-         glBegin(GL_TRIANGLES)
+         glBegin(GL_POINTS)
          rotationChange = 180./rings
          for i in range(rings):
-            for j in range(len(v) - 1):
-               glVertex(v[j]);glVertex(v[j + 1]);glVertex(v[j]);# 3rd vertices should be rotated
-               glVertex(v[j]);glVertex(v[j+1]);glVertex(v[j+1]); # 1st and 2 nd should be rotated
-            glVertex(v[j]);glVertex(v[0]);glVertex(v[j])
-            glVertex(v[j]);glVertex(v[0]);glVertex(v[0])
+            newV = vo.applyRotation(v, rotationChange * i, vo.Rotation.OZ)
+            for j in range(len(newV) - 1):
+               glVertex(newV[j]);glVertex(newV[j + 1]);glVertex(vo.applyRotationSingle(newV[j], rotationChange, vo.Rotation.OZ));# 3rd vertices should be rotated
+               glVertex(vo.applyRotationSingle(newV[j], rotationChange, vo.Rotation.OZ));glVertex(vo.applyRotationSingle(newV[j+1], rotationChange, vo.Rotation.OZ));glVertex(newV[j+1]); # 1st and 2 nd should be rotated
+            glVertex(newV[j]);glVertex(newV[0]);glVertex(vo.applyRotationSingle(newV[j], rotationChange, vo.Rotation.OZ))
+            glVertex(vo.applyRotationSingle(newV[j], rotationChange, vo.Rotation.OZ));glVertex(vo.applyRotationSingle(newV[0], rotationChange, vo.Rotation.OZ));glVertex(newV[0])
          glEnd()
       return __sphere_gl
 
