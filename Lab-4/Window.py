@@ -17,6 +17,7 @@ class Window:
       , height = 480
       , name = "Window"
       , background : Tuple[float, float, float, float] = (0.,0.,0.,0.)
+      , msaa = True
       ):
       self.width = width
       self.height = height
@@ -34,10 +35,12 @@ class Window:
       self.rotation = 0
       self.rotationType = vo.Rotation.OX
       self.color = [1, 1, 1]
+      self.msaa = msaa
 
    def SetupWindow(self):
       glutInit()
-      glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH)
+      self.__setupOptionalFunctionalities()
+      glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH | GLUT_MULTISAMPLE)
       glutInitWindowSize(self.width, self.height)
       glutCreateWindow(self.name)
       glClearColor(*self.background)
@@ -49,6 +52,11 @@ class Window:
       self.run = True
       self.__setupViewPort()
       glutMainLoop()
+
+   def __setupOptionalFunctionalities(self):
+      if self.msaa:
+         glEnable(GL_MULTISAMPLE)
+         glutSetOption(GLUT_MULTISAMPLE, 8)
 
    def __setupViewPort(self):
       glViewport(0, 0, 640, 480)
@@ -164,127 +172,6 @@ class Window:
       if self.run is True:
          glutTimerFunc(17, self.__timerLoop, 0)
 
-   def __polygon(self):
-      pass
-
-   def __circle(self, side_number, side_length, is2d = True, x = 0., y = 0.):
-      def __circle_gl():
-         angleIncrement = 360. / side_number
-         angleIncrement *= np.pi / 180
-
-         glBegin(GL_TRIANGLE_FAN)
-
-         angle = 0.
-         
-         r = side_length / (2 * np.sin(side_length / 2))
-
-         v = []
-
-         for _ in range(side_number):
-            if is2d is True:
-               vTemp = [r * np.cos(angle) + x, np.sin(angle) + y, 0.]
-               vTemp = vo.applyRotationSingle(vTemp, self.rotation, self.rotationType)
-               v.append(vTemp)
-               glVertex3f(*vTemp)
-            else:
-               vTemp = [r * np.cos(angle) + x, y, np.sin(angle)]
-               vTemp = vo.applyRotationSingle(vTemp, self.rotation, self.rotationType)
-               v.append(vTemp)
-               glVertex3f(*vTemp)
-            angle += angleIncrement
-         glEnd()
-         self.figures.append(v)
-      return __circle_gl
-
-   def __cylinder(self, r, h):
-      def __cylinder_gl():
-         n = self.circle_quality
-         a = 2 * r * np.tan(np.pi/n) # a = 2r tg(pi/n)
-         self.__circle(n, a, False)()
-         self.__circle(n, a, False, 0, h)()
-         vLow = self.figures[-2]
-         vHigh = self.figures[-1]
-         glBegin(GL_TRIANGLES)
-         for i in range(len(vLow) - 1):
-            glVertex(vLow[i]);glVertex(vLow[i+1]);glVertex(vHigh[i])
-            glVertex(vHigh[i]);glVertex(vHigh[i+1]);glVertex(vLow[i+1])
-         glVertex(vLow[0]);glVertex(vLow[-1]);glVertex(vHigh[0])
-         glVertex(vHigh[0]);glVertex(vHigh[-1]);glVertex(vLow[-1])
-         glEnd()
-      return __cylinder_gl
-
-   def __autoRotation(self, speed):
-      self.rotation += 1/(2*np.pi)
-      if self.autoRotationEnabled is True:
-         glutTimerFunc(int(1000./speed), self.__autoRotation, speed)
-
-   def __cone(self, r, h):
-      def __cone_gl():
-         n = self.circle_quality
-         a = 2 * r * np.tan(np.pi/n) # a = 2r tg(pi/n)
-         self.__circle(n, a, False)()
-         v = self.figures[-1]
-         vTop = [0., h, 0.]
-         vTop = vo.applyRotationSingle(vTop, self.rotation, self.rotationType)
-         glBegin(GL_TRIANGLES)
-         for i in range(len(v) - 1):
-            glVertex(v[i]);glVertex(v[i+1]);glVertex(vTop)
-         glVertex(v[0]);glVertex(v[-1]);glVertex(vTop)
-         glEnd()
-      return __cone_gl
-
-
-   def __cube(self, a):
-      def __cube_gl():
-         self.__cuboid(a, a, a)()
-      
-      return __cube_gl
-
-   def __cuboid(self, a, b, c):
-      def __cuboid_gl():
-         v = [
-            [-a/2, -b/2, -c/2], [a/2, -b/2, -c/2], [a/2, -b/2, c/2], [-a/2, -b/2, c/2],
-            [-a/2, b/2, -c/2], [a/2, b/2, -c/2], [a/2, b/2, c/2], [-a/2, b/2, c/2],
-         ]
-         v = vo.applyRotation(v, self.rotation , self.rotationType)
-
-         glBegin(GL_TRIANGLES)
-         glVertex(v[0]);glVertex(v[1]);glVertex(v[2]) # DOWN
-         glVertex(v[0]);glVertex(v[2]);glVertex(v[3]) # DOWN
-         glVertex(v[4]);glVertex(v[5]);glVertex(v[6]) # UP
-         glVertex(v[4]);glVertex(v[6]);glVertex(v[7]) # UP
-         glVertex(v[0]);glVertex(v[1]);glVertex(v[5]) # SIDE
-         glVertex(v[0]);glVertex(v[5]);glVertex(v[4]) # SIDE
-         glVertex(v[1]);glVertex(v[2]);glVertex(v[6]) # SIDE 2
-         glVertex(v[1]);glVertex(v[6]);glVertex(v[5]) # SIDE 2
-         glVertex(v[2]);glVertex(v[3]);glVertex(v[7]) # SIDE 3
-         glVertex(v[2]);glVertex(v[7]);glVertex(v[6]) # SIDE 3
-         glVertex(v[0]);glVertex(v[3]);glVertex(v[7]) # SIDE 4
-         glVertex(v[0]);glVertex(v[7]);glVertex(v[4]) # SIDE 4
-         glEnd()
-      return __cuboid_gl
-
-   def __print_text(self):
-      glColor3f(1.0, 1.0, 1.0)
-      width = self.__get_string_width("Command: ")
-      self.__print_string("Command: ")
-      self.__print_string(self.command, startX=10 + width)
-      glColor3f(*self.color)
-
-   def __print_help(self):
-      glColor3f(1.0, 1.0, 1.0)
-      self.__print_string("Manual", y = self.height - 20)
-      self.__print_string("wsadqe - movement", y = self.height - 40)
-      self.__print_string("uiojkl - rotation", y = self.height - 60)
-      self.__print_string("exit", y = self.height - 80)
-      self.__print_string("quality <n> - sets circle quality", y = self.height - 100)
-      self.__print_string("color <r> <g> <b> - sets color", y = self.height - 120)
-      self.__print_string("0, 9 - sets background color (from black to white)", y = self.height - 140)
-      self.__print_string("cube <a> - creates cube", y = self.height - 160)
-      self.__print_string("cuboid <a> <b> <c> creates cuboid", y = self.height - 180)
-      self.__print_string("circle <n> <a> - n => quality | a => length", y = self.height - 200)
-      self.__print_string("cylinder <r> <h> - r => radius | h => height", y = self.height - 220)
-   
    def __print_string(self, text, startX=10, y = 10):
       x = startX
       for char in text:
@@ -329,6 +216,160 @@ class Window:
       glPopMatrix()
       self.matrix_stack_count -= 1
 
+   def __circle(self, side_number, side_length, is2d = True, x = 0., y = 0.):
+      def __circle_gl():
+         angleIncrement = 360. / side_number
+         angleIncrement *= np.pi / 180
+
+         glBegin(GL_TRIANGLE_FAN)
+
+         angle = 0.
+         
+         r = side_length / (2 * np.sin(side_length / 2))
+
+         v = []
+
+         for _ in range(side_number):
+            if is2d is True:
+               vTemp = [r * np.cos(angle) + x, np.sin(angle) + y, 0.]
+               vTemp = vo.applyRotationSingle(vTemp, self.rotation, self.rotationType)
+               v.append(vTemp)
+               glVertex3f(*vTemp)
+            else:
+               vTemp = [r * np.cos(angle) + x, y, np.sin(angle)]
+               vTemp = vo.applyRotationSingle(vTemp, self.rotation, self.rotationType)
+               v.append(vTemp)
+               glVertex3f(*vTemp)
+            angle += angleIncrement
+         glEnd()
+
+         glColor3f(0, 0, 0)
+         glBegin(GL_LINES)
+         for i in range(len(v) - 1):
+            glVertex(v[i]);glVertex(v[i+1])
+         glVertex(v[0]);glVertex(v[-1])
+         glEnd()
+         glColor3f(*self.color)
+         self.figures.append(v)
+      return __circle_gl
+
+   def __cylinder(self, r, h):
+      def __cylinder_gl():
+         n = self.circle_quality
+         a = 2 * r * np.tan(np.pi/n) # a = 2r tg(pi/n)
+         self.__circle(n, a, False)()
+         self.__circle(n, a, False, 0, h)()
+         vLow = self.figures[-2]
+         vHigh = self.figures[-1]
+         glBegin(GL_TRIANGLES)
+         for i in range(len(vLow) - 1):
+            glVertex(vLow[i]);glVertex(vLow[i+1]);glVertex(vHigh[i])
+            glVertex(vHigh[i]);glVertex(vHigh[i+1]);glVertex(vLow[i+1])
+         glVertex(vLow[0]);glVertex(vLow[-1]);glVertex(vHigh[0])
+         glVertex(vHigh[0]);glVertex(vHigh[-1]);glVertex(vLow[-1])
+         glEnd()
+
+         glBegin(GL_LINES)
+         for i in range(len(vLow)):
+            glVertex(vLow[i]);glVertex(vHigh[i])
+         glEnd()
+      return __cylinder_gl
+
+   def __autoRotation(self, speed):
+      self.rotation += 1/(2*np.pi)
+      if self.autoRotationEnabled is True:
+         glutTimerFunc(int(1000./speed), self.__autoRotation, speed)
+
+   def __cone(self, r, h):
+      def __cone_gl():
+         n = self.circle_quality
+         a = 2 * r * np.tan(np.pi/n) # a = 2r tg(pi/n)
+         self.__circle(n, a, False)()
+         v = self.figures[-1]
+         vTop = [0., h, 0.]
+         vTop = vo.applyRotationSingle(vTop, self.rotation, self.rotationType)
+         glBegin(GL_TRIANGLES)
+         for i in range(len(v) - 1):
+            glVertex(v[i]);glVertex(v[i+1]);glVertex(vTop)
+         glVertex(v[0]);glVertex(v[-1]);glVertex(vTop)
+         glEnd()
+         glColor3f(0, 0, 0)
+         glBegin(GL_LINES)
+         for i in range(len(v)):
+             glVertex(v[i]);glVertex(vTop)
+         glEnd()
+         glColor3f(*self.color)
+      return __cone_gl
+
+
+   def __cube(self, a):
+      def __cube_gl():
+         self.__cuboid(a, a, a)()
+      
+      return __cube_gl
+
+   def __cuboid(self, a, b, c):
+      def __cuboid_gl():
+         v = [
+            [-a/2, -b/2, -c/2], [a/2, -b/2, -c/2], [a/2, -b/2, c/2], [-a/2, -b/2, c/2],
+            [-a/2, b/2, -c/2], [a/2, b/2, -c/2], [a/2, b/2, c/2], [-a/2, b/2, c/2],
+         ]
+         v = vo.applyRotation(v, self.rotation , self.rotationType)
+
+         glBegin(GL_TRIANGLES)
+         glVertex(v[0]);glVertex(v[1]);glVertex(v[2]) # DOWN
+         glVertex(v[0]);glVertex(v[2]);glVertex(v[3]) # DOWN
+         glVertex(v[4]);glVertex(v[5]);glVertex(v[6]) # UP
+         glVertex(v[4]);glVertex(v[6]);glVertex(v[7]) # UP
+         glVertex(v[0]);glVertex(v[1]);glVertex(v[5]) # SIDE
+         glVertex(v[0]);glVertex(v[5]);glVertex(v[4]) # SIDE
+         glVertex(v[1]);glVertex(v[2]);glVertex(v[6]) # SIDE 2
+         glVertex(v[1]);glVertex(v[6]);glVertex(v[5]) # SIDE 2
+         glVertex(v[2]);glVertex(v[3]);glVertex(v[7]) # SIDE 3
+         glVertex(v[2]);glVertex(v[7]);glVertex(v[6]) # SIDE 3
+         glVertex(v[0]);glVertex(v[3]);glVertex(v[7]) # SIDE 4
+         glVertex(v[0]);glVertex(v[7]);glVertex(v[4]) # SIDE 4
+         glEnd()
+
+         glColor3f(0, 0, 0)
+         glBegin(GL_LINES)     
+         glVertex(v[0]);glVertex(v[1])
+         glVertex(v[0]);glVertex(v[3])
+         glVertex(v[0]);glVertex(v[4])
+         glVertex(v[2]);glVertex(v[1])
+         glVertex(v[2]);glVertex(v[3])
+         glVertex(v[2]);glVertex(v[6])
+         glVertex(v[5]);glVertex(v[1])
+         glVertex(v[5]);glVertex(v[4])
+         glVertex(v[5]);glVertex(v[6])
+         glVertex(v[7]);glVertex(v[3])
+         glVertex(v[7]);glVertex(v[4])
+         glVertex(v[7]);glVertex(v[6])
+         glEnd()
+         glColor3f(*self.color)
+      return __cuboid_gl
+
+   def __print_text(self):
+      glColor3f(1.0, 1.0, 1.0)
+      width = self.__get_string_width("Command: ")
+      self.__print_string("Command: ")
+      self.__print_string(self.command, startX=10 + width)
+      glColor3f(*self.color)
+
+   def __print_help(self):
+      glColor3f(1.0, 1.0, 1.0)
+      self.__print_string("Manual", y = self.height - 20)
+      self.__print_string("wsadqe - movement", y = self.height - 40)
+      self.__print_string("uiojkl - rotation", y = self.height - 60)
+      self.__print_string("exit", y = self.height - 80)
+      self.__print_string("quality <n> - sets circle quality", y = self.height - 100)
+      self.__print_string("color <r> <g> <b> - sets color", y = self.height - 120)
+      self.__print_string("0, 9 - sets background color (from black to white)", y = self.height - 140)
+      self.__print_string("cube <a> - creates cube", y = self.height - 160)
+      self.__print_string("cuboid <a> <b> <c> creates cuboid", y = self.height - 180)
+      self.__print_string("circle <n> <a> - n => quality | a => length", y = self.height - 200)
+      self.__print_string("cylinder <r> <h> - r => radius | h => height", y = self.height - 220)
+
    def __pyramid(self, h, d):
       def __pyramid_gl():
          v = [
@@ -337,12 +378,22 @@ class Window:
          ]
          v = vo.applyRotation(v, self.rotation, self.rotationType)
          glBegin(GL_TRIANGLES)
-         glColor3f(1.0, 0.0, 0.0)
          glVertex(v[0]);glVertex(v[1]);glVertex(v[2]) # DOWN
          glVertex(v[0]);glVertex(v[1]);glVertex(v[3]) # SIDE
          glVertex(v[1]);glVertex(v[2]);glVertex(v[3]) # SIDE
          glVertex(v[0]);glVertex(v[2]);glVertex(v[3]) # SIDE
          glEnd()
+
+         glColor3f(0, 0, 0)
+         glBegin(GL_LINES)
+         glVertex(v[0]);glVertex(v[1])
+         glVertex(v[1]);glVertex(v[2])
+         glVertex(v[0]);glVertex(v[2])
+         glVertex(v[1]);glVertex(v[3])
+         glVertex(v[2]);glVertex(v[3])
+         glVertex(v[0]);glVertex(v[3])
+         glEnd()
+         glColor3f(*self.color)
       return __pyramid_gl
 
    def __sphere(self, r, rings):
