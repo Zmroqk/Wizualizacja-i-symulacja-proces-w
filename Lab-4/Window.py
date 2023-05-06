@@ -253,6 +253,25 @@ class Window:
          self.figures.append(v)
       return __circle_gl
 
+   def __circle_points(self, side_number, side_length, is2d = True, x = 0., y = 0.):
+      angleIncrement = 360. / side_number
+      angleIncrement *= np.pi / 180
+
+      angle = 0.
+      
+      r = side_length / (2 * np.sin(side_length / 2))
+
+      v = []
+      for _ in range(side_number):
+         if is2d is True:
+            vTemp = [r * np.cos(angle) + x, np.sin(angle) + y, 0.]
+            v.append(vTemp)
+         else:
+            vTemp = [r * np.cos(angle) + x, y, np.sin(angle)]
+            v.append(vTemp)
+         angle += angleIncrement
+      return v
+
    def __cylinder(self, r, h):
       def __cylinder_gl():
          n = self.circle_quality
@@ -400,22 +419,33 @@ class Window:
       def __sphere_gl():
          n = self.circle_quality
          a = 2 * r * np.tan(np.pi/n) # a = 2r tg(pi/n)
-         self.__circle(n, a, False)()
-         v = self.figures[-1]
-         glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT) # TODO Remove <--- Make method that will generate circle points without graphics
+         v = self.__circle_points(n, a, False)
          glBegin(GL_POINTS)
          glVertex(0,0,0)
          glEnd()
-         glBegin(GL_POINTS)
-         rotationChange = 180./rings
+         glBegin(GL_TRIANGLES)
+         rotationChange = np.pi/(rings)
          for i in range(rings):
             newV = vo.applyRotation(v, rotationChange * i, vo.Rotation.OZ)
             for j in range(len(newV) - 1):
                glVertex(newV[j]);glVertex(newV[j + 1]);glVertex(vo.applyRotationSingle(newV[j], rotationChange, vo.Rotation.OZ));# 3rd vertices should be rotated
                glVertex(vo.applyRotationSingle(newV[j], rotationChange, vo.Rotation.OZ));glVertex(vo.applyRotationSingle(newV[j+1], rotationChange, vo.Rotation.OZ));glVertex(newV[j+1]); # 1st and 2 nd should be rotated
-            glVertex(newV[j]);glVertex(newV[0]);glVertex(vo.applyRotationSingle(newV[j], rotationChange, vo.Rotation.OZ))
-            glVertex(vo.applyRotationSingle(newV[j], rotationChange, vo.Rotation.OZ));glVertex(vo.applyRotationSingle(newV[0], rotationChange, vo.Rotation.OZ));glVertex(newV[0])
+            glVertex(newV[-1]);glVertex(newV[0]);glVertex(vo.applyRotationSingle(newV[-1], rotationChange, vo.Rotation.OZ))
+            glVertex(vo.applyRotationSingle(newV[-1], rotationChange, vo.Rotation.OZ));glVertex(vo.applyRotationSingle(newV[0], rotationChange, vo.Rotation.OZ));glVertex(newV[0])
          glEnd()
+         glColor3f(0, 0, 0)
+         glBegin(GL_LINES)
+         for i in range(rings):
+            newV = vo.applyRotation(v, rotationChange * i, vo.Rotation.OZ)
+            for j in range(len(newV) - 1):
+               glVertex(newV[j]);glVertex(newV[j + 1])
+               glVertex(newV[j]);glVertex(vo.applyRotationSingle(newV[j], rotationChange, vo.Rotation.OZ))
+               glVertex(newV[j + 1]);glVertex(vo.applyRotationSingle(newV[j + 1], rotationChange, vo.Rotation.OZ))
+               glVertex(newV[j + 1]);glVertex(vo.applyRotationSingle(newV[j], rotationChange, vo.Rotation.OZ))
+            glVertex(newV[-1]);glVertex(newV[0])
+            glVertex(newV[0]);glVertex(vo.applyRotationSingle(newV[-1], rotationChange, vo.Rotation.OZ))
+         glEnd()
+         glColor3f(*self.color)
       return __sphere_gl
 
    def exit(self):
