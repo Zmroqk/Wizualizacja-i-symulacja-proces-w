@@ -5,6 +5,7 @@ from typing import Tuple
 import random
 import time
 import math
+import ctypes
 
 import numpy as np
 
@@ -21,6 +22,7 @@ class Window:
       self.name = name
       self.background = background
       self.showFunc = None
+      self.printFunc = None
       self.run = False
       self.commandMode = False
       self.command = ""
@@ -55,16 +57,14 @@ class Window:
             self.command = self.command[:-1]
          else:   
             self.command += char.decode('utf-8')
-         os.system('clear')
-         # self.__print_text(char)
-         print(self.command)
       elif self.commandMode and char == b'\r':
          self.commandMode = False
+         self.printFunc = None
          self.__handleCommand()
       elif char == b' ':
          self.commandMode = not self.commandMode
          self.command = ""
-         print('Command mode enabled')
+         self.printFunc = self.__print_text
       elif char == b'2':
          pass
       elif char == b'0':
@@ -112,7 +112,7 @@ class Window:
       print('Executing command')
       params = self.command.split(' ')[1:]
       if self.command.startswith('cube'):
-         self.showFunc = self.__cube(params[0])
+         self.showFunc = self.__cube(int(params[0]))
       elif self.command.startswith('cuboid'):
          self.showFunc = self.__cuboid(*map(lambda x: int(x), params))
       elif self.command.startswith('pyramid'):
@@ -135,19 +135,24 @@ class Window:
          glColor3f(float(params[0]), float(params[1]), float(params[2]))
       elif self.command.startswith('quality'):
          self.circle_quality = int(params[0])
+      elif self.command.startswith('exit'):
+         self.exit()
+      elif self.command.startswith('help'):
+         self.printFunc = self.__print_help
 
    def __windowLoop(self):
       glClearColor(*self.background)
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-      glPushMatrix()
+      if self.printFunc is not None:
+         self.printFunc()
       if self.showFunc is not None:
          self.showFunc()
       glutSwapBuffers()
-      glPopMatrix()
 
    def __timerLoop(self, time):
       glutPostRedisplay()
-      glutTimerFunc(17, self.__timerLoop, 0)
+      if self.run is True:
+         glutTimerFunc(17, self.__timerLoop, 0)
 
    def __polygon(self):
       pass
@@ -246,14 +251,38 @@ class Window:
          glEnd()
       return __cuboid_gl
 
-   def __print_text(self, char):
-      self.__ortogtaphic_rendering()
-      glColor3f(0.0, 1.0, 0.0)
-      glRasterPos2f(10, 10)
-      print(GLUT_BITMAP_TIMES_ROMAN_24)
-      glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, int.from_bytes(char, 'big'))
-      self.__reset_matrixes()
-      # self.__perspecitve_rendering()
+   def __print_text(self):
+      glColor3f(1.0, 1.0, 1.0)
+      width = self.__get_string_width("Command: ")
+      self.__print_string("Command: ")
+      self.__print_string(self.command, startX=10 + width)
+
+   def __print_help(self):
+      glColor3f(1.0, 1.0, 1.0)
+      self.__print_string("Manual", y = self.height - 20)
+      self.__print_string("wsadqe - movement", y = self.height - 40)
+      self.__print_string("uiojkl - rotation", y = self.height - 60)
+      self.__print_string("exit", y = self.height - 80)
+      self.__print_string("quality <n> - sets circle quality", y = self.height - 100)
+      self.__print_string("color <r> <g> <b> - sets color", y = self.height - 120)
+      self.__print_string("0, 9 - sets background color (from black to white)", y = self.height - 140)
+      self.__print_string("cube <a> - creates cube", y = self.height - 160)
+      self.__print_string("cuboid <a> <b> <c> creates cuboid", y = self.height - 180)
+      self.__print_string("circle <n> <a> - n => quality | a => length", y = self.height - 200)
+      self.__print_string("cylinder <r> <h> - r => radius | h => height", y = self.height - 220)
+   
+   def __print_string(self, text, startX=10, y = 10):
+      x = startX
+      for char in text:
+         glWindowPos2i(x, y)
+         glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, ctypes.c_int(ord(char)))
+         x += glutBitmapWidth(GLUT_BITMAP_TIMES_ROMAN_24, ctypes.c_int(ord(char)))
+
+   def __get_string_width(self, text):
+      x = 0
+      for char in text:
+         x += glutBitmapWidth(GLUT_BITMAP_TIMES_ROMAN_24, ctypes.c_int(ord(char)))
+      return x
 
    def __perspecitve_rendering(self):
       if self.matrix_stack_count > 0:
@@ -270,7 +299,7 @@ class Window:
          self.__reset_matrixes()
       glMatrixMode(GL_PROJECTION)
       self.__push_matrixes()
-      glOrtho(0, self.width, 0, self.height, 1, 10)
+      glOrtho(0, self.width, 0, self.height, -2, 10)
       glMatrixMode(GL_MODELVIEW)
       self.__push_matrixes()
       self.matrix_stack_count += 1
@@ -305,19 +334,26 @@ class Window:
       def __sphere_gl():
          n = self.circle_quality
          a = 2 * r * np.tan(np.pi/n) # a = 2r tg(pi/n)
+         self.__circle(n, a, False)()
+         v = self.figures[-1]
+         glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT)
          glBegin(GL_POINTS)
          glVertex(0,0,0)
          glEnd()
+         glBegin(GL_TRIANGLES)
          rotationChange = 180./rings
          for i in range(rings):
-            glPushMatrix()
-            glRotatef(rotationChange * i, 0, 0, 1)
-            self.__circle(n, a, False)()       
-            glPopMatrix()
+            for j in range(len(v) - 1):
+               glVertex(v[j]);glVertex(v[j + 1]);glVertex(v[j]);# 3rd vertices should be rotated
+               glVertex(v[j]);glVertex(v[j+1]);glVertex(v[j+1]); # 1st and 2 nd should be rotated
+            glVertex(v[j]);glVertex(v[0]);glVertex(v[j])
+            glVertex(v[j]);glVertex(v[0]);glVertex(v[0])
+         glEnd()
       return __sphere_gl
 
    def exit(self):
       self.run = False
+      glutLeaveMainLoop()
       exit(-1)
 
 window = Window()
