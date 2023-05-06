@@ -7,6 +7,7 @@ import time
 import math
 import ctypes
 import vectorOperations as vo
+from Figures.Cuboid import Cuboid
 
 import numpy as np
 
@@ -329,44 +330,49 @@ class Window:
 
    def __cuboid(self, a, b, c):
       def __cuboid_gl():
-         v = [
-            [-a/2, -b/2, -c/2], [a/2, -b/2, -c/2], [a/2, -b/2, c/2], [-a/2, -b/2, c/2],
-            [-a/2, b/2, -c/2], [a/2, b/2, -c/2], [a/2, b/2, c/2], [-a/2, b/2, c/2],
-         ]
-         v = vo.applyRotation(v, self.rotation , self.rotationType)
-
-         glBegin(GL_TRIANGLES)
-         glVertex(v[0]);glVertex(v[1]);glVertex(v[2]) # DOWN
-         glVertex(v[0]);glVertex(v[2]);glVertex(v[3]) # DOWN
-         glVertex(v[4]);glVertex(v[5]);glVertex(v[6]) # UP
-         glVertex(v[4]);glVertex(v[6]);glVertex(v[7]) # UP
-         glVertex(v[0]);glVertex(v[1]);glVertex(v[5]) # SIDE
-         glVertex(v[0]);glVertex(v[5]);glVertex(v[4]) # SIDE
-         glVertex(v[1]);glVertex(v[2]);glVertex(v[6]) # SIDE 2
-         glVertex(v[1]);glVertex(v[6]);glVertex(v[5]) # SIDE 2
-         glVertex(v[2]);glVertex(v[3]);glVertex(v[7]) # SIDE 3
-         glVertex(v[2]);glVertex(v[7]);glVertex(v[6]) # SIDE 3
-         glVertex(v[0]);glVertex(v[3]);glVertex(v[7]) # SIDE 4
-         glVertex(v[0]);glVertex(v[7]);glVertex(v[4]) # SIDE 4
-         glEnd()
-
-         glColor3f(0, 0, 0)
-         glBegin(GL_LINES)     
-         glVertex(v[0]);glVertex(v[1])
-         glVertex(v[0]);glVertex(v[3])
-         glVertex(v[0]);glVertex(v[4])
-         glVertex(v[2]);glVertex(v[1])
-         glVertex(v[2]);glVertex(v[3])
-         glVertex(v[2]);glVertex(v[6])
-         glVertex(v[5]);glVertex(v[1])
-         glVertex(v[5]);glVertex(v[4])
-         glVertex(v[5]);glVertex(v[6])
-         glVertex(v[7]);glVertex(v[3])
-         glVertex(v[7]);glVertex(v[4])
-         glVertex(v[7]);glVertex(v[6])
-         glEnd()
-         glColor3f(*self.color)
+         cuboid = Cuboid(a, b, c, self.rotation, self.rotationType, self.color)
+         cuboid.draw()
       return __cuboid_gl
+   # def __cuboid(self, a, b, c):
+   #    def __cuboid_gl():
+   #       v = [
+   #          [-a/2, -b/2, -c/2], [a/2, -b/2, -c/2], [a/2, -b/2, c/2], [-a/2, -b/2, c/2],
+   #          [-a/2, b/2, -c/2], [a/2, b/2, -c/2], [a/2, b/2, c/2], [-a/2, b/2, c/2],
+   #       ]
+   #       v = vo.applyRotation(v, self.rotation , self.rotationType)
+
+   #       glBegin(GL_TRIANGLES)
+   #       glVertex(v[0]);glVertex(v[1]);glVertex(v[2]) # DOWN
+   #       glVertex(v[0]);glVertex(v[2]);glVertex(v[3]) # DOWN
+   #       glVertex(v[4]);glVertex(v[5]);glVertex(v[6]) # UP
+   #       glVertex(v[4]);glVertex(v[6]);glVertex(v[7]) # UP
+   #       glVertex(v[0]);glVertex(v[1]);glVertex(v[5]) # SIDE
+   #       glVertex(v[0]);glVertex(v[5]);glVertex(v[4]) # SIDE
+   #       glVertex(v[1]);glVertex(v[2]);glVertex(v[6]) # SIDE 2
+   #       glVertex(v[1]);glVertex(v[6]);glVertex(v[5]) # SIDE 2
+   #       glVertex(v[2]);glVertex(v[3]);glVertex(v[7]) # SIDE 3
+   #       glVertex(v[2]);glVertex(v[7]);glVertex(v[6]) # SIDE 3
+   #       glVertex(v[0]);glVertex(v[3]);glVertex(v[7]) # SIDE 4
+   #       glVertex(v[0]);glVertex(v[7]);glVertex(v[4]) # SIDE 4
+   #       glEnd()
+
+   #       glColor3f(0, 0, 0)
+   #       glBegin(GL_LINES)     
+   #       glVertex(v[0]);glVertex(v[1])
+   #       glVertex(v[0]);glVertex(v[3])
+   #       glVertex(v[0]);glVertex(v[4])
+   #       glVertex(v[2]);glVertex(v[1])
+   #       glVertex(v[2]);glVertex(v[3])
+   #       glVertex(v[2]);glVertex(v[6])
+   #       glVertex(v[5]);glVertex(v[1])
+   #       glVertex(v[5]);glVertex(v[4])
+   #       glVertex(v[5]);glVertex(v[6])
+   #       glVertex(v[7]);glVertex(v[3])
+   #       glVertex(v[7]);glVertex(v[4])
+   #       glVertex(v[7]);glVertex(v[6])
+   #       glEnd()
+   #       glColor3f(*self.color)
+   #    return __cuboid_gl
 
    def __print_text(self):
       glColor3f(1.0, 1.0, 1.0)
