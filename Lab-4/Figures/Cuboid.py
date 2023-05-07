@@ -1,20 +1,19 @@
 from Figures.Figure import Figure
 from vectorOperations import *
 from typing import List
+from windowState import WindowState
 
 class Cuboid(Figure):
-   def __init__(self, a: float, b: float, c: float, rotation: float, rotationType: Rotation, initialColor: List[float]):
+   def __init__(self, state: WindowState, a: float, b: float, c: float):
+      super(Cuboid, self).__init__(state)
       self.a = a
       self.b = b
       self.c = c
-      self.rotation = rotation
-      self.rotationType = rotationType
-      self.lastUsedColor = initialColor
 
    def draw(self):
-      v = applyRotation(self.createVertices(), self.rotation, self.rotationType)
+      v = applyRotation(self.createVertices(), self._state.currentRotation, self._state.currentRotationType)
 
-      self._setColor(*self.lastUsedColor)
+      self._setColor(*self._state.currentColor)
       self._startDrawingTriangles()
       self._drawTriangle(v[0], v[1], v[2]) #DOWN
       self._drawTriangle(v[0], v[2], v[3]) #DOWN

@@ -2,10 +2,11 @@ from abc import ABC, abstractmethod
 from typing import List
 from OpenGL.GLUT import *
 from OpenGL.GL import *
+from windowState import WindowState
 
 class Figure(ABC):
-   def __init__(self):
-      self.lastUsedColor = None
+   def __init__(self, state: WindowState):
+      self._state = state
 
    @abstractmethod
    def draw(self):
@@ -35,9 +36,8 @@ class Figure(ABC):
 
    def _setColor(self, r: float, g: float, b: float):
       glColor3f(r, g, b)
-      self.lastUsedColor = [r, g, b]
 
    def _restoreColor(self):
-      if self.lastUsedColor is not None:
-         glColor3f(*self.lastUsedColor)
+      if self._state.currentColor is not None:
+         glColor3f(*self._state.currentColor)
    
