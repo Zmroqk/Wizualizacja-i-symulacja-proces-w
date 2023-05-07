@@ -10,8 +10,8 @@ class Pyramid(Figure):
       self.h = h
     
    def draw(self):
-      v = self.createVertices()
-      v = vo.applyRotation(v, self._state.currentRotation, self._state.currentRotationType)
+      v = vo.applyRotationAll(self.createVertices(), self._state.currentRotation)
+      v = vo.applyPosition(v, *self._state.currentPosition)
 
       self._restoreColor()
       self._startDrawingTriangles()

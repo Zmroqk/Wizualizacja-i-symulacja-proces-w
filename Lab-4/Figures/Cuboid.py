@@ -11,7 +11,9 @@ class Cuboid(Figure):
       self.c = c
 
    def draw(self):
-      v = applyRotation(self.createVertices(), self._state.currentRotation, self._state.currentRotationType)
+      #v = applyRotation(self.createVertices(), self._state.currentRotation, self._state.currentRotationType)
+      v = applyRotationAll(self.createVertices(), self._state.currentRotation)
+      v = applyPosition(v, *self._state.currentPosition)
 
       self._setColor(*self._state.currentColor)
       self._startDrawingTriangles()

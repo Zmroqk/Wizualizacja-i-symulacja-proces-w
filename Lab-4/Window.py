@@ -89,17 +89,17 @@ class Window:
 
    def __handleLocation(self, char):
       if char == b'w':
-         glTranslate(0, 1, 0)
+         self.state.currentPosition[1] += 1.
       elif char == b's':
-         glTranslate(0, -1, 0)
+         self.state.currentPosition[1] -= 1.
       elif char == b'a':
-         glTranslate(-1, 0, 0)
+         self.state.currentPosition[0] -= 1.
       elif char == b'd':
-         glTranslate(1, 0, 0)
+         self.state.currentPosition[0] += 1.
       elif char == b'q':
-         glTranslate(0, 0, -1)
+         self.state.currentPosition[2] -= 1.
       elif char == b'e':
-         glTranslate(0, 0, 1)
+         self.state.currentPosition[2] += 1.
 
    def __handleRotation(self, char):
       mod = glutGetModifiers()
@@ -107,17 +107,18 @@ class Window:
       if mod == GLUT_ACTIVE_ALT:
          multiplier = 6
       if char == b'u':
-         glRotate(5 * multiplier, 0, 1, 0)
+         #glRotate(5 * multiplier, 0, 1, 0)
+         self.state.currentRotation[1] += 1
       elif char == b'o':
-         glRotate(5 * multiplier, 0, -1, 0)
+         self.state.currentRotation[1] -= 1
       elif char == b'i':
-         glRotate(5 * multiplier, 1, 0, 0)
+         self.state.currentRotation[0] += 1
       elif char == b'k':
-         glRotate(5 * multiplier, -1, 0, 0)
+         self.state.currentRotation[0] -= 1 
       elif char == b'j':
-         glRotate(5 * multiplier, 0, 0, 1)
+         self.state.currentRotation[2] += 1
       elif char == b'l':
-         glRotate(5 * multiplier, 0, 0, -1)
+         self.state.currentRotation[2] -= 1
 
    def __handleCommand(self):
       print('Executing command')
@@ -139,7 +140,7 @@ class Window:
          figure = f.Sphere(self.state, float(params[0]), int(params[1]))
       elif self.command.startswith('autorotation'):
          self.autoRotationEnabled = True
-         self.state.currentRotation = 0
+         #self.state.currentRotation = [0., 0., 0.]
          if params[1] == 'x':
             self.state.currentRotationType = vo.Rotation.OX
          elif params[1] == 'y':
@@ -223,7 +224,16 @@ class Window:
       self.matrix_stack_count -= 1
 
    def __autoRotation(self, speed):
-      self.state.currentRotation += (1/self.rotation_quality)/(2*np.pi)
+      #self.state.currentRotation += (1/self.rotation_quality)/(2*np.pi)
+      print(self.state.currentRotation)
+
+      if self.state.currentRotationType == vo.Rotation.OX:
+         self.state.currentRotation[0] += (1/self.rotation_quality)/(2*np.pi)
+      elif self.state.currentRotationType == vo.Rotation.OY:
+         self.state.currentRotation[1] += (1/self.rotation_quality)/(2*np.pi)
+      else:
+         self.state.currentRotation[2] += (1/self.rotation_quality)/(2*np.pi)
+
       if self.autoRotationEnabled is True:
          glutTimerFunc(int(1000./speed), self.__autoRotation, speed)
 
@@ -248,6 +258,9 @@ class Window:
       self.__print_string("cuboid <a> <b> <c> - creates cuboid", y = self.height - 200)
       self.__print_string("circle <a> <bool> - a => length | bool => is2d", y = self.height - 220)
       self.__print_string("cylinder <r> <h> - r => radius | h => height", y = self.height - 240)
+      self.__print_string("cone <r> <h> - r => radius | h => height", y = self.height - 260)
+      self.__print_string("sphere <r> <ring> - r => radius | ring - number of rings", y = self.height - 280)
+      self.__print_string("pyramid <d> <h> - d => side of the triangle | h - height of the triangle", y = self.height - 300)
 
    def exit(self):
       self.run = False

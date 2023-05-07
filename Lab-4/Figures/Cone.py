@@ -15,7 +15,7 @@ class Cone(Figure):
       v = circle.createVertices()
       circle.draw()
       vTop = [0., self.height, 0.]
-      vTop = vo.applyRotationSingle(vTop, self.state.currentRotation, self.state.rotationType)
+      vTop = vo.applyRotationSingle(vTop, self._state.currentRotation, self._state.currentRotationType)
 
       self._restoreColor()
       self._startDrawingTriangles()

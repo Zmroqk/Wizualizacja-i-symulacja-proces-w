@@ -41,7 +41,8 @@ class Circle(Figure):
       
       # r = side_length / (2 * np.sin(side_length / 2))
       
-      v = vo.applyRotation(self.createVertices(), self._state.currentRotation, self._state.currentRotationType)
+      v = vo.applyRotationAll(self.createVertices(), self._state.currentRotation)
+      v = vo.applyPosition(v, *self._state.currentPosition)
 
       self._restoreColor()
       glBegin(GL_TRIANGLE_FAN)
