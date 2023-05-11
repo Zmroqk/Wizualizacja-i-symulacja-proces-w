@@ -4,6 +4,7 @@ import ctypes
 import numpy as np
 import sys
 import shaders
+import Figures
 
 class Window_glfw:
    
@@ -38,6 +39,8 @@ class Window_glfw:
       glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 4)
       glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 6)
       glfw.swap_interval(1)
+      gl.glEnable(gl.GL_DEPTH_TEST)
+      gl.glDepthFunc(gl.GL_LESS)
 
    def _prepareShaders(self, vertexShaderCode, fragmentShaderCode):
       self.vertexShaderId = gl.glCreateShader(gl.GL_VERTEX_SHADER)
@@ -46,10 +49,10 @@ class Window_glfw:
       gl.glShaderSource(self.fragmentShaderId, fragmentShaderCode)
       gl.glCompileShader(self.vertexShaderId)
       if not gl.glGetShaderiv(self.vertexShaderId, gl.GL_COMPILE_STATUS):
-         print(str(gl.glGetShaderInfoLog(self.vertexShaderId).decode()), file=sys.stderr)
+         print('vertex shader: ', str(gl.glGetShaderInfoLog(self.vertexShaderId).decode()), file=sys.stderr)
       gl.glCompileShader(self.fragmentShaderId)
       if not gl.glGetShaderiv(self.fragmentShaderId, gl.GL_COMPILE_STATUS):
-         print(str(gl.glGetShaderInfoLog(self.fragmentShaderId).decode()), file=sys.stderr)
+         print('fragment shader: ',str(gl.glGetShaderInfoLog(self.fragmentShaderId).decode()), file=sys.stderr)
 
       self.glProgramId = gl.glCreateProgram()
       gl.glAttachShader(self.glProgramId, self.vertexShaderId)
@@ -67,15 +70,15 @@ class Window_glfw:
    def _setup_draw(self):
       self.vao = gl.glGenVertexArrays(1)
       gl.glBindVertexArray(self.vao)
-      self.vertexes = np.array([-1., -1., 0.
-                                , 1., -1., 0.
-                                , 0., 1., 0.
-                                , -1., -1., 0.
-                                , 0., 1., 0.
-                                , -1., 1., 0.], dtype=np.float32)
-      self.vertexBuffer = gl.glGenBuffers(1)
-      gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.vertexBuffer)
-      gl.glBufferData(gl.GL_ARRAY_BUFFER, self.vertexes.nbytes, self.vertexes, gl.GL_STATIC_DRAW)
+      # self.vertexes = np.array([(-1., -1., 0)
+      #                           , (1., -1., 0)
+      #                           , (1., 1., 0)
+      #                           , (-1., -1., 0)
+      #                           , (1., 1., 0)
+      #                           , (-1., 1., 0)], dtype=np.float32)
+      # self.vertexBuffer = gl.glGenBuffers(1)
+      # gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.vertexBuffer)
+      # gl.glBufferData(gl.GL_ARRAY_BUFFER, self.vertexes.nbytes, self.vertexes, gl.GL_STATIC_DRAW)
 
    def _key_callback(self, window, key: int, scancode: int, action: int, mods: int):
       if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
@@ -91,16 +94,18 @@ class Window_glfw:
 
    def run_main_loop(self):
       self._setup_draw()
+      cuboid = Figures.Cuboid(None, 1, 1, 1)
+      cuboid.setup()
 
       self._prepareShaders(shaders.vsc, shaders.fsc)
-
       while not glfw.window_should_close(self.window):       
          self.framebuffer_size = glfw.get_framebuffer_size(self.window)
-         gl.glClear(gl.GL_COLOR_BUFFER_BIT)
+         gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
 
          # draw
          gl.glUseProgram(self.glProgramId)
-         self._test_draw()       
+         #self._test_draw()      
+         cuboid.draw() 
          # end draw
 
          glfw.swap_buffers(self.window)
