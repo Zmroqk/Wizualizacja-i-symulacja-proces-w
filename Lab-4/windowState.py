@@ -7,3 +7,4 @@ class WindowState:
         self.currentRotation = [0., 0., 0.]
         self.currentColor = [1., 1., 1.]
         self.circleQuality = 20
+        self.rotationQuality = 100

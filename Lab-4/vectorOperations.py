@@ -62,3 +62,11 @@ def applyRotationSingle(vec: List[float], angle, rotation: Rotation) -> List[Lis
    else:
       rotationFunc = rotateZ
    return list(rotationFunc(vec, angle))
+
+def createPositionMatrix(vec: List[float]):
+   return np.matrix([
+      [1, 0, 0, vec[0]],
+      [0, 1, 0, vec[1]],
+      [0, 0, 1, vec[2]],
+      [0, 0, 0, 1]
+   ], dtype=np.float32)

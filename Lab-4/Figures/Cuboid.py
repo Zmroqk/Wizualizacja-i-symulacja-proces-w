@@ -56,7 +56,7 @@ class Cuboid(Figure):
       self._drawLines()
 
    def setup(self):
-      v = np.array(applyRotationAll(self.createVertices(), [np.pi/1.5, np.pi/1.5, np.pi/2.4]))
+      v = np.array(self.createVertices())
       self._bindVertexData(self.vertex_buffer_id, np.array([
          *v[0], *v[1], *v[2],
          *v[0], *v[2], *v[3],

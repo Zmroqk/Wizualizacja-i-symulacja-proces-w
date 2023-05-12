@@ -5,6 +5,8 @@ import numpy as np
 import sys
 import shaders
 import Figures
+from windowState import WindowState
+import vectorOperations as vo
 
 class Window_glfw:
    
@@ -22,6 +24,7 @@ class Window_glfw:
       self.fragmentShaderId = 0
       self.vertexes = []
       self.glProgramId = None
+      self.state = WindowState()
 
    def setup_window(self) -> None:
       if not glfw.init():
@@ -67,22 +70,42 @@ class Window_glfw:
       gl.glDeleteShader(self.vertexShaderId)
       gl.glDeleteShader(self.fragmentShaderId)
 
+      gl.glUseProgram(self.glProgramId)
+      self.matrixLocationId = gl.glGetUniformLocation(self.glProgramId, "position")
+      self.rotationLocationId = gl.glGetUniformLocation(self.glProgramId, "rotation")
+
    def _setup_draw(self):
       self.vao = gl.glGenVertexArrays(1)
       gl.glBindVertexArray(self.vao)
-      # self.vertexes = np.array([(-1., -1., 0)
-      #                           , (1., -1., 0)
-      #                           , (1., 1., 0)
-      #                           , (-1., -1., 0)
-      #                           , (1., 1., 0)
-      #                           , (-1., 1., 0)], dtype=np.float32)
-      # self.vertexBuffer = gl.glGenBuffers(1)
-      # gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.vertexBuffer)
-      # gl.glBufferData(gl.GL_ARRAY_BUFFER, self.vertexes.nbytes, self.vertexes, gl.GL_STATIC_DRAW)
 
    def _key_callback(self, window, key: int, scancode: int, action: int, mods: int):
       if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
          glfw.set_window_should_close(self.window, glfw.TRUE)
+      elif key == glfw.KEY_A:
+         self.state.currentPosition = [self.state.currentPosition[0] - 0.1, self.state.currentPosition[1], self.state.currentPosition[2]]
+      elif key == glfw.KEY_D:
+         self.state.currentPosition = [self.state.currentPosition[0] + 0.1, self.state.currentPosition[1], self.state.currentPosition[2]]
+      elif key == glfw.KEY_S:
+         self.state.currentPosition = [self.state.currentPosition[0], self.state.currentPosition[1] - 0.1, self.state.currentPosition[2]]
+      elif key == glfw.KEY_W:
+         self.state.currentPosition = [self.state.currentPosition[0], self.state.currentPosition[1] + 0.1, self.state.currentPosition[2]]
+      elif key == glfw.KEY_Q:
+         self.state.currentPosition = [self.state.currentPosition[0], self.state.currentPosition[1], self.state.currentPosition[2] - 0.1]
+      elif key == glfw.KEY_E:
+         self.state.currentPosition = [self.state.currentPosition[0], self.state.currentPosition[1], self.state.currentPosition[2] + 0.1]
+
+      elif key == glfw.KEY_K:
+         self.state.currentRotation = [self.state.currentRotation[0] - np.pi/self.state.rotationQuality, self.state.currentRotation[1], self.state.currentRotation[2]]
+      elif key == glfw.KEY_I:
+         self.state.currentRotation = [self.state.currentRotation[0] + np.pi/self.state.rotationQuality, self.state.currentRotation[1], self.state.currentRotation[2]]
+      elif key == glfw.KEY_L:
+         self.state.currentRotation = [self.state.currentRotation[0], self.state.currentRotation[1] - np.pi/self.state.rotationQuality, self.state.currentRotation[2]]
+      elif key == glfw.KEY_J:
+         self.state.currentRotation = [self.state.currentRotation[0], self.state.currentRotation[1] + np.pi/self.state.rotationQuality, self.state.currentRotation[2]]
+      elif key == glfw.KEY_U:
+         self.state.currentRotation = [self.state.currentRotation[0], self.state.currentRotation[1], self.state.currentRotation[2] - np.pi/self.state.rotationQuality]
+      elif key == glfw.KEY_O:
+         self.state.currentRotation = [self.state.currentRotation[0], self.state.currentRotation[1], self.state.currentRotation[2] + np.pi/self.state.rotationQuality]
 
    def _test_draw(self):
       gl.glEnableVertexAttribArray(0)
@@ -96,7 +119,6 @@ class Window_glfw:
       self._setup_draw()
       cuboid = Figures.Cuboid(None, 1, 1, 1)
       cuboid.setup()
-
       self._prepareShaders(shaders.vsc, shaders.fsc)
       while not glfw.window_should_close(self.window):       
          self.framebuffer_size = glfw.get_framebuffer_size(self.window)
@@ -104,7 +126,8 @@ class Window_glfw:
 
          # draw
          gl.glUseProgram(self.glProgramId)
-         #self._test_draw()      
+         gl.glUniformMatrix4fv(self.matrixLocationId, 1, gl.GL_FALSE, vo.createPositionMatrix(self.state.currentPosition))
+         gl.glUniform3f(self.rotationLocationId, *self.state.currentRotation)
          cuboid.draw() 
          # end draw
 
