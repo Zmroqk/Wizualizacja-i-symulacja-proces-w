@@ -9,28 +9,40 @@ class Cone(Figure):
       super().__init__(state)
       self.radius = radius
       self.height = height
+      self.circle = Circle(self._state, self.radius, is2d=False)
+
+   def setup(self):
+      self.circle.setup()
+      v, vTop = self.createVertices()
+      vOut = []
+      vLinesOut = []
+
+
+      for i in range(len(v) - 1):
+         vOut.append(v[i])
+         vOut.append(v[i + 1])
+         vOut.append(vTop)
+
+      vOut.append(v[0])
+      vOut.append(v[-1])
+      vOut.append(vTop)
+
+      for i in range(len(v)):
+         vLinesOut.append(v[i])
+         vLinesOut.append(vTop)
+      
+      self._bindVertexData(self.vertex_buffer_id, np.array(vOut, dtype=np.float32))
+      self._bindColorData(self.vertex_color_id, np.array([0, 1, 0], dtype=np.float32), self.size)
+
+      self._bindVertexData(self.line_buffer_id, np.array(vLinesOut, dtype=np.float32))
+      self._bindColorData(self.line_color_id, np.array([0, 0, 0], dtype=np.float32), self.size)
+   
 
    def draw(self):
-      circle = Circle(self._state, self.radius, is2d=False)
-      v = circle.createVertices()
-      circle.draw()
-      vTop = [0., self.height, 0.]
-      vTop = vo.applyRotationSingle(vTop, self._state.currentRotation, self._state.currentRotationType)
+      self.circle.draw()
+      self._drawTriangle()
+      self._drawLines()
 
-      self._restoreColor()
-      self._startDrawingTriangles()
-      for i in range(len(v) - 1):
-         self._drawTriangle(v[i], v[i + 1], vTop)
-      self._drawTriangle(v[0], v[-1], vTop)
-      self._endDrawingBlock()
-
-      self._setColor(0, 0, 0)
-      self._startDrawingLines()
-      for i in range(len(v)):
-         self._drawLine(v[i], vTop)
-      self._endDrawingBlock()
-      self._restoreColor()
    
    def createVertices(self):
-      circle = Circle(self._state, self.radius, is2d=False)
-      return (circle.createVertices(), [0., self.height, 0.])
+      return (self.circle.createVertices(), [0., self.height, 0.])

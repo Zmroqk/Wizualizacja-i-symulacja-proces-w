@@ -40,6 +40,21 @@ class Figure(ABC):
       gl.glBindBuffer(gl.GL_ARRAY_BUFFER, buffer)
       gl.glBufferData(gl.GL_ARRAY_BUFFER, vertices.nbytes, vertices, gl.GL_STATIC_DRAW)
    
+   def _drawTriangleFans(self):
+      gl.glEnableVertexAttribArray(1)
+
+      gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.vertex_color_id)
+      gl.glVertexAttribPointer(1, 3, gl.GL_FLOAT, gl.GL_FALSE, 0, ctypes.c_void_p(0))
+
+      gl.glEnableVertexAttribArray(0)
+
+      gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.vertex_buffer_id)
+      gl.glVertexAttribPointer(0, 3, gl.GL_FLOAT, gl.GL_FALSE, 0, ctypes.c_void_p(0))
+      gl.glDrawArrays(gl.GL_TRIANGLE_FAN, 0, self.size)
+
+      gl.glDisableVertexAttribArray(0)
+      gl.glDisableVertexAttribArray(1)
+
    def _drawTriangle(self):
       gl.glEnableVertexAttribArray(1)
 

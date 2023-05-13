@@ -5,7 +5,7 @@ from windowState import WindowState
 
 class Cuboid(Figure):
    def __init__(self, state: WindowState, a: float, b: float, c: float):
-      super(Cuboid, self).__init__(state)
+      super().__init__(state)
       self.a = a
       self.b = b
       self.c = c

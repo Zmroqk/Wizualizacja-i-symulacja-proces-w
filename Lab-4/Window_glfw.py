@@ -107,18 +107,11 @@ class Window_glfw:
       elif key == glfw.KEY_O:
          self.state.currentRotation = [self.state.currentRotation[0], self.state.currentRotation[1], self.state.currentRotation[2] + np.pi/self.state.rotationQuality]
 
-   def _test_draw(self):
-      gl.glEnableVertexAttribArray(0)
-      gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.vertexBuffer)
-      gl.glVertexAttribPointer(0, 3, gl.GL_FLOAT, gl.GL_FALSE, 0, ctypes.c_void_p(0))
-      gl.glDrawArrays(gl.GL_TRIANGLES, 0, 6)
-      gl.glDisableVertexAttribArray(0)
-
-
    def run_main_loop(self):
       self._setup_draw()
-      cuboid = Figures.Cuboid(None, 1, 1, 1)
-      cuboid.setup()
+      self.state.circleQuality = 200
+      circle = Figures.Cone(self.state, 0.5, 0.8)
+      circle.setup()
       self._prepareShaders(shaders.vsc, shaders.fsc)
       while not glfw.window_should_close(self.window):       
          self.framebuffer_size = glfw.get_framebuffer_size(self.window)
@@ -128,7 +121,7 @@ class Window_glfw:
          gl.glUseProgram(self.glProgramId)
          gl.glUniformMatrix4fv(self.matrixLocationId, 1, gl.GL_FALSE, vo.createPositionMatrix(self.state.currentPosition))
          gl.glUniform3f(self.rotationLocationId, *self.state.currentRotation)
-         cuboid.draw() 
+         circle.draw()
          # end draw
 
          glfw.swap_buffers(self.window)
@@ -137,6 +130,6 @@ class Window_glfw:
       glfw.terminate()
       exit(0)
 
-window = Window_glfw()
+window = Window_glfw(width=720, height=720)
 window.setup_window()
 window.run_main_loop()
