@@ -9,28 +9,64 @@ class Pyramid(Figure):
       self.d = d
       self.h = h
     
-   def draw(self):
+
+   def setup(self):
       v = vo.applyRotationAll(self.createVertices(), self._state.currentRotation)
       v = vo.applyPosition(v, *self._state.currentPosition)
 
-      self._restoreColor()
-      self._startDrawingTriangles()
-      self._drawTriangle(v[0], v[1], v[2]) # DOWN
-      self._drawTriangle(v[0], v[1], v[3]) # SIDE
-      self._drawTriangle(v[1], v[2], v[3]) # SIDE
-      self._drawTriangle(v[0], v[2], v[3]) # SIDE
-      self._endDrawingBlock()
+      vOut = []
+      vLinesOut = []
 
-      self._setColor(0, 0, 0)
-      self._startDrawingLines()
-      self._drawLine(v[0], v[1])
-      self._drawLine(v[1], v[2])
-      self._drawLine(v[0], v[2])
-      self._drawLine(v[1], v[3])
-      self._drawLine(v[2], v[3])
-      self._drawLine(v[0], v[3])
-      self._endDrawingBlock()
-      self._restoreColor()
+      # DOWN
+      vOut.append(v[0])
+      vOut.append(v[1])
+      vOut.append(v[2])
+
+      # SIDE
+      vOut.append(v[0])
+      vOut.append(v[1])
+      vOut.append(v[3])
+
+
+      # SIDE
+      vOut.append(v[1])
+      vOut.append(v[2])
+      vOut.append(v[3])
+
+
+       # SIDE
+      vOut.append(v[0])
+      vOut.append(v[2])
+      vOut.append(v[3])
+
+
+      vLinesOut.append(v[0])
+      vLinesOut.append(v[1])
+
+      vLinesOut.append(v[1])
+      vLinesOut.append(v[2])
+
+      vLinesOut.append(v[0])
+      vLinesOut.append(v[2])
+
+      vLinesOut.append(v[1])
+      vLinesOut.append(v[3])
+
+      vLinesOut.append(v[2])
+      vLinesOut.append(v[3])
+
+      vLinesOut.append(v[0])
+      vLinesOut.append(v[3])
+
+      self._bindVertexData(self.vertex_buffer_id, np.array(vOut, dtype=np.float32))
+      self._bindColorData(self.vertex_color_id, np.array([0, 1, 0], dtype=np.float32), self.size)
+
+      self._bindVertexData(self.line_buffer_id, np.array(vLinesOut, dtype=np.float32))
+      self._bindColorData(self.line_color_id, np.array([0, 0, 0], dtype=np.float32), self.size)  
+
+   def draw(self):
+      self._drawTriangle()
+      self._drawLines()
 
    def createVertices(self):
       return [

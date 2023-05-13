@@ -9,29 +9,51 @@ class Cylinder(Figure):
       super().__init__(state)
       self.radius = radius
       self.h = h
+      self.circleLow = Circle(self._state, self.radius, is2d=False)
+      self.circleHigh = Circle(self._state, self.radius, is2d=False, x = 0, y = self.h)
+
+   def setup(self):
+      vLow = self.circleLow.createVertices()
+      vHigh = self.circleHigh.createVertices()
+      
+      self.circleHigh.setup()
+      self.circleLow.setup()
+      
+      vOut = []
+      vLinesOut = []
+      
+      for i in range(len(vLow) - 1):
+         vOut.append(vLow[i])
+         vOut.append(vLow[i + 1])
+         vOut.append(vHigh[i])
+
+         vOut.append(vHigh[i])
+         vOut.append(vHigh[i + 1])
+         vOut.append(vLow[i + 1])
+
+      vOut.append(vLow[0])
+      vOut.append(vLow[-1])
+      vOut.append(vHigh[0])
+
+      vOut.append(vHigh[0])
+      vOut.append(vHigh[-1])
+      vOut.append(vLow[-1])
+
+      for i in range(len(vLow)):
+         vLinesOut.append(vLow[i])
+         vLinesOut.append(vHigh[i])
+
+      self._bindVertexData(self.vertex_buffer_id, np.array(vOut, dtype=np.float32))
+      self._bindColorData(self.vertex_color_id, np.array([0, 1, 0], dtype=np.float32), self.size)
+
+      self._bindVertexData(self.line_buffer_id, np.array(vLinesOut, dtype=np.float32))
+      self._bindColorData(self.line_color_id, np.array([0, 0, 0], dtype=np.float32), self.size)      
 
    def draw(self):
-      circleLow = Circle(self._state, self.radius, is2d=False)
-      circleHigh = Circle(self._state, self.radius, is2d=False, x = 0, y = self.h)
-      vLow = circleLow.createVertices()
-      vHigh = circleHigh.createVertices()
-      circleLow.draw()
-      circleHigh.draw()
-      
-      self._restoreColor()
-      self._startDrawingTriangles()
-      for i in range(len(vLow) - 1):
-         self._drawTriangle(vLow[i], vLow[i + 1], vHigh[i])
-         self._drawTriangle(vHigh[i], vHigh[i + 1], vLow[i + 1])
-      self._drawTriangle(vLow[0], vLow[-1], vHigh[0])
-      self._drawTriangle(vHigh[0], vHigh[-1], vLow[-1])
-      self._endDrawingBlock()
-
-      self._setColor(0, 0, 0)
-      self._startDrawingLines()
-      for i in range(len(vLow)):
-         self._drawLine(vLow[i], vHigh[i])
-      self._endDrawingBlock()
+      self.circleLow.draw()
+      self.circleHigh.draw()
+      self._drawTriangle()
+      self._drawLines()
 
    def createVertices(self):
       circleLow = Circle(self._state, self.radius, is2d=False)

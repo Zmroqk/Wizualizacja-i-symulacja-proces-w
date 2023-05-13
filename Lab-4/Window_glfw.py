@@ -109,8 +109,8 @@ class Window_glfw:
 
    def run_main_loop(self):
       self._setup_draw()
-      self.state.circleQuality = 200
-      circle = Figures.Cone(self.state, 0.5, 0.8)
+      self.state.circleQuality = 20
+      circle = Figures.Sphere(self.state, 0.5, 5)
       circle.setup()
       self._prepareShaders(shaders.vsc, shaders.fsc)
       while not glfw.window_should_close(self.window):       

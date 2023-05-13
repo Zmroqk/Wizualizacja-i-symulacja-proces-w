@@ -10,32 +10,61 @@ class Sphere(Figure):
       self.radius = radius
       self.rings = rings
 
-   def draw(self):
+
+   def setup(self):
       rotationChange = np.pi/(self.rings)
       circles = self.createVertices()
 
-      self._restoreColor()
-      self._startDrawingTriangles()
-      for circle in circles:
-         for j in range(len(circle) - 1):
-            self._drawTriangle(circle[j], circle[j+1], vo.applyRotationSingle(circle[j], rotationChange, vo.Rotation.OZ))
-            self._drawTriangle(vo.applyRotationSingle(circle[j], rotationChange, vo.Rotation.OZ), vo.applyRotationSingle(circle[j+1], rotationChange, vo.Rotation.OZ), circle[j + 1])
-         self._drawTriangle(circle[-1], circle[0], vo.applyRotationSingle(circle[-1], rotationChange, vo.Rotation.OZ))
-         self._drawTriangle(vo.applyRotationSingle(circle[-1], rotationChange, vo.Rotation.OZ), vo.applyRotationSingle(circle[0], rotationChange, vo.Rotation.OZ), circle[0])
-      self._endDrawingBlock()
+      vOut = []
+      vLinesOut = []
 
-      self._setColor(0, 0, 0)
-      self._startDrawingLines()
       for circle in circles:
          for j in range(len(circle) - 1):
-            self._drawLine(circle[j], circle[j + 1])
-            self._drawLine(circle[j], vo.applyRotationSingle(circle[j], rotationChange, vo.Rotation.OZ))
-            self._drawLine(circle[j + 1], vo.applyRotationSingle(circle[j + 1], rotationChange, vo.Rotation.OZ))
-            self._drawLine(circle[j + 1], vo.applyRotationSingle(circle[j], rotationChange, vo.Rotation.OZ))
-         self._drawLine(circle[-1], circle[0])
-         self._drawLine(circle[0], vo.applyRotationSingle(circle[-1], rotationChange, vo.Rotation.OZ))
-      self._endDrawingBlock()
-      self._restoreColor()
+            vOut.append(circle[j])
+            vOut.append(circle[j + 1])
+            vOut.append(vo.applyRotationSingle(circle[j], rotationChange, vo.Rotation.OZ))
+
+            vOut.append(vo.applyRotationSingle(circle[j], rotationChange, vo.Rotation.OZ))
+            vOut.append(vo.applyRotationSingle(circle[j+1], rotationChange, vo.Rotation.OZ))
+            vOut.append(circle[j + 1])
+
+         vOut.append(circle[-1])
+         vOut.append(circle[0])
+         vOut.append(vo.applyRotationSingle(circle[-1], rotationChange, vo.Rotation.OZ))
+         vOut.append(vo.applyRotationSingle(circle[-1], rotationChange, vo.Rotation.OZ))
+         vOut.append(vo.applyRotationSingle(circle[0], rotationChange, vo.Rotation.OZ))
+         vOut.append(circle[0])
+
+
+         for circle in circles:
+            for j in range(len(circle) - 1):
+               vLinesOut.append(circle[j])
+               vLinesOut.append(circle[j + 1])
+
+               vLinesOut.append(circle[j])
+               vLinesOut.append(vo.applyRotationSingle(circle[j], rotationChange, vo.Rotation.OZ))
+
+               vLinesOut.append(circle[j + 1])
+               vLinesOut.append(vo.applyRotationSingle(circle[j + 1], rotationChange, vo.Rotation.OZ))
+
+               vLinesOut.append(circle[j + 1])
+               vLinesOut.append(vo.applyRotationSingle(circle[j], rotationChange, vo.Rotation.OZ))
+
+            vLinesOut.append(circle[-1])
+            vLinesOut.append(circle[0])
+            vLinesOut.append(circle[0])
+            vLinesOut.append(vo.applyRotationSingle(circle[-1], rotationChange, vo.Rotation.OZ))
+
+
+         self._bindVertexData(self.vertex_buffer_id, np.array(vOut, dtype=np.float32))
+         self._bindColorData(self.vertex_color_id, np.array([0, 1, 0], dtype=np.float32), self.size)
+
+      self._bindVertexData(self.line_buffer_id, np.array(vLinesOut, dtype=np.float32))
+      self._bindColorData(self.line_color_id, np.array([0, 0, 0], dtype=np.float32), self.size)
+
+   def draw(self):
+      self._drawTriangle()
+      self._drawLines()
    
    def createVertices(self):
       circle = Circle(self._state, self.radius, is2d=False)

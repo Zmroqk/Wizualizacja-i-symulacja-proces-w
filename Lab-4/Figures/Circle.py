@@ -5,7 +5,7 @@ import numpy as np
 import vectorOperations as vo
 
 class Circle(Figure):
-   def __init__(self, state: WindowState, radius: float = None, polygonSideLength: float = None, is2d = True, x = 0., y = 0., color=[0, 1, 0]):
+   def __init__(self, state: WindowState, radius: float = None, polygonSideLength: float = None, is2d = True, x = 0., y = 0.):
       super().__init__(state)
       self.polygonSideLength = None
       if radius is not None:
@@ -17,18 +17,12 @@ class Circle(Figure):
       self.is2d = is2d
       self.x = x
       self.y = y
-      self.color = color
    
    def setup(self):
       v = self.createVertices()
-
-      # if(self.polygonSideLength is not None):
-      #    v = self.createVertices()
-      # else:
-      #    v = self.generate_points(self.radius)
       
       self._bindVertexData(self.vertex_buffer_id, np.array(v, dtype=np.float32))
-      self._bindColorData(self.vertex_color_id, np.array(self.color, dtype=np.float32), self.size)
+      self._bindColorData(self.vertex_color_id, np.array([0, 1, 0], dtype=np.float32), self.size)
    
    def createVertices(self):
       if(self.polygonSideLength is not None):
@@ -55,26 +49,6 @@ class Circle(Figure):
          angle += angleIncrement
       return v
 
-
-   # def createVertices(self):
-   #    angleIncrement = 360. / self._state.circleQuality
-   #    angleIncrement *= np.pi / 180
-
-   #    angle = 0.
-      
-   #    # r = side_length / (2 * np.sin(side_length / 2))
-
-   #    v = []
-   #    for _ in range(self._state.circleQuality):
-   #       if self.is2d is True:
-   #          vTemp = [self.radius * np.cos(angle) + self.x, np.sin(angle) + self.y, 0.]
-   #          v.append(vTemp)
-   #       else:
-   #          vTemp = [self.radius * np.cos(angle) + self.x, self.y, np.sin(angle)]
-   #          v.append(vTemp)
-   #       angle += angleIncrement
-   #    return v
-
    def createVerticesRadius(self, radius):
       # Calculate the number of points to generate
       num_points = self._state.circleQuality
@@ -91,9 +65,9 @@ class Circle(Figure):
          y = radius * np.sin(theta)
 
          if self.is2d is True:
-            v.append([x, y, 0])
+            v.append([x + self.x, y + self.y, 0])
          else:
-            v.append([x, 0, y])
+            v.append([x + self.x, self.y, y])
 
       return v
    

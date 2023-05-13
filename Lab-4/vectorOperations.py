@@ -53,7 +53,7 @@ def applyRotation(vecArray: List[List[float]], angle, rotation: Rotation) -> Lis
       rotationFunc = rotateZ
    return list(map(lambda vec: rotationFunc(vec, angle), vecArray))
 
-def applyRotationSingle(vec: List[float], angle, rotation: Rotation) -> List[List[float]] :
+def applyRotationSingle(vec: List[float], angle, rotation: Rotation) -> List[float] :
    rotationFunc = None
    if rotation == Rotation.OX:
       rotationFunc = rotateX
