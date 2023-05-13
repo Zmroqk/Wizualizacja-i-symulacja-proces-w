@@ -43,11 +43,11 @@ class Cylinder(Figure):
          vLinesOut.append(vLow[i])
          vLinesOut.append(vHigh[i])
 
-      self._bindVertexData(self.vertex_buffer_id, np.array(vOut, dtype=np.float32))
-      self._bindColorData(self.vertex_color_id, np.array([0, 1, 0], dtype=np.float32), self.size)
+      self.size = self._bindVertexData(self.vertex_buffer_id, np.array(vOut, dtype=np.float32))
+      self._bindColorData(self.vertex_color_id, np.array(self._state.currentColor, dtype=np.float32), self.size)
 
-      self._bindVertexData(self.line_buffer_id, np.array(vLinesOut, dtype=np.float32))
-      self._bindColorData(self.line_color_id, np.array([0, 0, 0], dtype=np.float32), self.size)      
+      self.lineSize = self._bindVertexData(self.line_buffer_id, np.array(vLinesOut, dtype=np.float32))
+      self._bindColorData(self.line_color_id, np.array(self._state.currentLineColor, dtype=np.float32), self.size)      
 
    def draw(self):
       self.circleLow.draw()

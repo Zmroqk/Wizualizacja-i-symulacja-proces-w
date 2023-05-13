@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from typing import List
 import OpenGL.GL as gl
 from windowState import WindowState
 import numpy as np
@@ -14,6 +13,7 @@ class Figure(ABC):
       self.line_color_id = self._generate_buffer()
       self.color = 0
       self.size = 0
+      self.lineSize = 0
 
    @abstractmethod
    def setup(self):
@@ -35,10 +35,10 @@ class Figure(ABC):
       gl.glBindBuffer(gl.GL_ARRAY_BUFFER, buffer_id)
       gl.glBufferData(gl.GL_ARRAY_BUFFER, colors.nbytes, colors, gl.GL_STATIC_DRAW)
 
-   def _bindVertexData(self, buffer, vertices):
-      self.size = len(vertices) * 3
+   def _bindVertexData(self, buffer, vertices) -> int:
       gl.glBindBuffer(gl.GL_ARRAY_BUFFER, buffer)
       gl.glBufferData(gl.GL_ARRAY_BUFFER, vertices.nbytes, vertices, gl.GL_STATIC_DRAW)
+      return len(vertices) * 3
    
    def _drawTriangleFans(self):
       gl.glEnableVertexAttribArray(1)
@@ -72,11 +72,15 @@ class Figure(ABC):
 
    def _drawLines(self):
       gl.glEnableVertexAttribArray(1)
+
       gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.line_color_id)
       gl.glVertexAttribPointer(1, 3, gl.GL_FLOAT, gl.GL_FALSE, 0, ctypes.c_void_p(0))
-      gl.glDisableVertexAttribArray(1)
+
       gl.glEnableVertexAttribArray(0)
+
       gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.line_buffer_id)
       gl.glVertexAttribPointer(0, 3, gl.GL_FLOAT, gl.GL_FALSE, 0, ctypes.c_void_p(0))
-      gl.glDrawArrays(gl.GL_LINES, 0, self.size)
+      gl.glDrawArrays(gl.GL_LINES, 0, self.lineSize)
+
+      gl.glDisableVertexAttribArray(1)
       gl.glDisableVertexAttribArray(0)

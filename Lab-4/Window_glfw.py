@@ -1,12 +1,10 @@
 import OpenGL.GL as gl
 import glfw
-import ctypes
-import numpy as np
 import sys
 import shaders
-import Figures
 from windowState import WindowState
 import vectorOperations as vo
+import Commands
 
 class Window_glfw:
    
@@ -25,6 +23,7 @@ class Window_glfw:
       self.vertexes = []
       self.glProgramId = None
       self.state = WindowState()
+      self.commandDispatcher = Commands.CommandDispatcher(self.state)
 
    def setup_window(self) -> None:
       if not glfw.init():
@@ -79,39 +78,13 @@ class Window_glfw:
       gl.glBindVertexArray(self.vao)
 
    def _key_callback(self, window, key: int, scancode: int, action: int, mods: int):
-      if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
-         glfw.set_window_should_close(self.window, glfw.TRUE)
-      elif key == glfw.KEY_A:
-         self.state.currentPosition = [self.state.currentPosition[0] - 0.1, self.state.currentPosition[1], self.state.currentPosition[2]]
-      elif key == glfw.KEY_D:
-         self.state.currentPosition = [self.state.currentPosition[0] + 0.1, self.state.currentPosition[1], self.state.currentPosition[2]]
-      elif key == glfw.KEY_S:
-         self.state.currentPosition = [self.state.currentPosition[0], self.state.currentPosition[1] - 0.1, self.state.currentPosition[2]]
-      elif key == glfw.KEY_W:
-         self.state.currentPosition = [self.state.currentPosition[0], self.state.currentPosition[1] + 0.1, self.state.currentPosition[2]]
-      elif key == glfw.KEY_Q:
-         self.state.currentPosition = [self.state.currentPosition[0], self.state.currentPosition[1], self.state.currentPosition[2] - 0.1]
-      elif key == glfw.KEY_E:
-         self.state.currentPosition = [self.state.currentPosition[0], self.state.currentPosition[1], self.state.currentPosition[2] + 0.1]
-
-      elif key == glfw.KEY_K:
-         self.state.currentRotation = [self.state.currentRotation[0] - np.pi/self.state.rotationQuality, self.state.currentRotation[1], self.state.currentRotation[2]]
-      elif key == glfw.KEY_I:
-         self.state.currentRotation = [self.state.currentRotation[0] + np.pi/self.state.rotationQuality, self.state.currentRotation[1], self.state.currentRotation[2]]
-      elif key == glfw.KEY_L:
-         self.state.currentRotation = [self.state.currentRotation[0], self.state.currentRotation[1] - np.pi/self.state.rotationQuality, self.state.currentRotation[2]]
-      elif key == glfw.KEY_J:
-         self.state.currentRotation = [self.state.currentRotation[0], self.state.currentRotation[1] + np.pi/self.state.rotationQuality, self.state.currentRotation[2]]
-      elif key == glfw.KEY_U:
-         self.state.currentRotation = [self.state.currentRotation[0], self.state.currentRotation[1], self.state.currentRotation[2] - np.pi/self.state.rotationQuality]
-      elif key == glfw.KEY_O:
-         self.state.currentRotation = [self.state.currentRotation[0], self.state.currentRotation[1], self.state.currentRotation[2] + np.pi/self.state.rotationQuality]
+      try:
+         self.commandDispatcher.dispatch(self.window, key, scancode, action, mods)
+      except:
+         pass
 
    def run_main_loop(self):
       self._setup_draw()
-      self.state.circleQuality = 20
-      circle = Figures.Sphere(self.state, 0.5, 5)
-      circle.setup()
       self._prepareShaders(shaders.vsc, shaders.fsc)
       while not glfw.window_should_close(self.window):       
          self.framebuffer_size = glfw.get_framebuffer_size(self.window)
@@ -121,9 +94,9 @@ class Window_glfw:
          gl.glUseProgram(self.glProgramId)
          gl.glUniformMatrix4fv(self.matrixLocationId, 1, gl.GL_FALSE, vo.createPositionMatrix(self.state.currentPosition))
          gl.glUniform3f(self.rotationLocationId, *self.state.currentRotation)
-         circle.draw()
+         if self.state.currentFigure is not None:
+            self.state.currentFigure.draw()
          # end draw
-
          glfw.swap_buffers(self.window)
          glfw.poll_events()
 

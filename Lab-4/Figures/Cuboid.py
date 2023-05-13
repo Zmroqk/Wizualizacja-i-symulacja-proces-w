@@ -57,7 +57,7 @@ class Cuboid(Figure):
 
    def setup(self):
       v = np.array(self.createVertices())
-      self._bindVertexData(self.vertex_buffer_id, np.array([
+      self.size = self._bindVertexData(self.vertex_buffer_id, np.array([
          *v[0], *v[1], *v[2],
          *v[0], *v[2], *v[3],
          *v[4], *v[5], *v[6],
@@ -72,9 +72,9 @@ class Cuboid(Figure):
          *v[0], *v[7], *v[4],
       ], dtype=np.float32))
 
-      self._bindColorData(self.vertex_color_id, np.array([0, 1, 0], dtype=np.float32), self.size)
+      self._bindColorData(self.vertex_color_id, np.array(self._state.currentColor, dtype=np.float32), self.size)
 
-      self._bindVertexData(self.line_buffer_id, np.array([
+      self.lineSize = self._bindVertexData(self.line_buffer_id, np.array([
          *v[0], *v[1],
          *v[0], *v[3],
          *v[0], *v[4],
@@ -89,7 +89,7 @@ class Cuboid(Figure):
          *v[7], *v[6],
       ], dtype=np.float32))
 
-      self._bindColorData(self.line_color_id, np.array([0, 0, 0], dtype=np.float32), self.size)
+      self._bindColorData(self.line_color_id, np.array(self._state.currentLineColor, dtype=np.float32), self.size)
 
    def createVertices(self):
       return [

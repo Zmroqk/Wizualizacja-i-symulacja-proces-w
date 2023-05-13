@@ -21,8 +21,8 @@ class Circle(Figure):
    def setup(self):
       v = self.createVertices()
       
-      self._bindVertexData(self.vertex_buffer_id, np.array(v, dtype=np.float32))
-      self._bindColorData(self.vertex_color_id, np.array([0, 1, 0], dtype=np.float32), self.size)
+      self.size = self._bindVertexData(self.vertex_buffer_id, np.array(v, dtype=np.float32))
+      self._bindColorData(self.vertex_color_id, np.array(self._state.currentColor, dtype=np.float32), self.size)
    
    def createVertices(self):
       if(self.polygonSideLength is not None):
