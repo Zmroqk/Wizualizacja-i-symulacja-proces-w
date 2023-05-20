@@ -1,8 +1,9 @@
 vsc = """#version 330 core
 layout(location = 0) in vec3 vertexPosition;
 layout(location = 1) in vec3 color;
-uniform mat4 position;
+uniform vec3 position;
 uniform vec3 rotation;
+uniform mat4 camera;
 
 out vec3 fragmentColor;
 
@@ -27,7 +28,10 @@ mat4 rz(float kat) {
 }
 
 void main() {
-   gl_Position = vec4(vertexPosition, 1.0) * rx(rotation.x) * ry(rotation.y) * rz(rotation.z) * position;
+   gl_Position = camera * rx(rotation.x) * ry(rotation.y) * rz(rotation.z) * vec4(vertexPosition.x + position.x
+      , vertexPosition.y + position.y
+      , vertexPosition.z + position.z
+      , 1.0);
    fragmentColor = color;
 }
 """

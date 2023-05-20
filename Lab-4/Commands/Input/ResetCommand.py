@@ -7,6 +7,6 @@ class ResetCommand(Command):
       super().__init__(state)
 
    def execute(self):
-      self._state.currentFigure = None
-      self._state.currentPosition = [0, 0, 0]
-      self._state.currentRotation = [0, 0, 0]
+      if self._state.currentFigure is not None:
+         self._state.currentFigure.globalPosition = [0, 0, 0]
+         self._state.currentFigure.rotation = [0, 0, 0]

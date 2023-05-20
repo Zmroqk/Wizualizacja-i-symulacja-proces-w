@@ -6,3 +6,4 @@ from Figures.Circle import Circle
 from Figures.Cylinder import Cylinder
 from Figures.Cone import Cone
 from Figures.Sphere import Sphere
+from .CustomFigure import CustomFigure

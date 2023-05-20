@@ -5,6 +5,8 @@ import shaders
 from windowState import WindowState
 import vectorOperations as vo
 import Commands
+import camera as c
+import numpy as np
 
 class Window_glfw:
    
@@ -72,19 +74,15 @@ class Window_glfw:
       gl.glUseProgram(self.glProgramId)
       self.matrixLocationId = gl.glGetUniformLocation(self.glProgramId, "position")
       self.rotationLocationId = gl.glGetUniformLocation(self.glProgramId, "rotation")
-
-   def _setup_draw(self):
-      self.vao = gl.glGenVertexArrays(1)
-      gl.glBindVertexArray(self.vao)
+      self.cameraLocationId = gl.glGetUniformLocation(self.glProgramId, "camera")
 
    def _key_callback(self, window, key: int, scancode: int, action: int, mods: int):
       try:
          self.commandDispatcher.dispatch(self.window, key, scancode, action, mods)
-      except:
-         pass
+      except Exception as e:
+         print(e)
 
    def run_main_loop(self):
-      self._setup_draw()
       self._prepareShaders(shaders.vsc, shaders.fsc)
       while not glfw.window_should_close(self.window):       
          self.framebuffer_size = glfw.get_framebuffer_size(self.window)
@@ -92,10 +90,17 @@ class Window_glfw:
 
          # draw
          gl.glUseProgram(self.glProgramId)
-         gl.glUniformMatrix4fv(self.matrixLocationId, 1, gl.GL_FALSE, vo.createPositionMatrix(self.state.currentPosition))
-         gl.glUniform3f(self.rotationLocationId, *self.state.currentRotation)
-         if self.state.currentFigure is not None:
-            self.state.currentFigure.draw()
+         gl.glUniformMatrix4fv(self.cameraLocationId, 1, gl.GL_FALSE, c.getCamera(self.state.currentCamera
+            , distance = self.state.cameraDistance
+            , rotX = self.state.cameraXRotation
+            , rotZ = self.state.cameraZRotation
+            , near = self.state.cameraNear
+            , far = self.state.cameraFar
+         ))   
+         for figure in self.state.figures.values():
+            gl.glUniform3f(self.matrixLocationId, *figure.getPosition())
+            gl.glUniform3f(self.rotationLocationId, *figure.getRotation())
+            figure.draw()
          # end draw
          glfw.swap_buffers(self.window)
          glfw.poll_events()

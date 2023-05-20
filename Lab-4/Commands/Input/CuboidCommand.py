@@ -10,5 +10,6 @@ class CuboidCommand(Command):
       self.c = float(params[2])
 
    def execute(self):
-      self._state.currentFigure = Figures.Cuboid(self._state, self.a, self.b, self.c)
-      self._state.currentFigure.setup()
+      cuboid = Figures.Cuboid(self._state, self.a, self.b, self.c)
+      self._state.figures[cuboid.id] = cuboid
+      cuboid.setup()

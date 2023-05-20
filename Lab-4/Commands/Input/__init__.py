@@ -12,3 +12,9 @@ from .AutorotationCommand import AutorotationCommand
 from .ColorCommand import ColorCommand
 from .LineColorCommand import LineColorCommand
 from .RotationQualityCommand import RotationQualityCommand
+from .ContextCommand import ContextCommand
+from .PrintFiguresCommand import PrintFiguresCommand
+from .CameraFarCommand import CameraFarCommand
+from .CameraNearCommand import CameraNearCommand
+from .ReadFigureCommand import ReadFigureCommand
+from .ExportCommand import ExportCommand

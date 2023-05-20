@@ -6,87 +6,84 @@ from windowState import WindowState
 class Cuboid(Figure):
    def __init__(self, state: WindowState, a: float, b: float, c: float):
       super().__init__(state)
+      self.type = 'Cuboid'
       self.a = a
       self.b = b
       self.c = c
 
-   # def draw(self):
-   #    # v = applyRotation(self.createVertices(), self._state.currentRotation, self._state.currentRotationType)
-   #    # v = applyRotationAll(self.createVertices(), self._state.currentRotation)
-   #    # v = applyPosition(v, *self._state.currentPosition)
-
-   #    # self._setColor(*self._state.currentColor)
-
-   #    # self._startDrawingTriangles()
-   #    # self._drawTriangle(v[0], v[1], v[2]) #DOWN
-   #    # self._drawTriangle(v[0], v[2], v[3]) #DOWN
-   #    # self._drawTriangle(v[4], v[5], v[6]) #UP
-   #    # self._drawTriangle(v[4], v[6], v[7]) #UP
-   #    # self._drawTriangle(v[0], v[1], v[5]) #SIDE
-   #    # self._drawTriangle(v[0], v[5], v[4]) #SIDE
-   #    # self._drawTriangle(v[1], v[2], v[6]) #SIDE 2
-   #    # self._drawTriangle(v[1], v[6], v[5]) #SIDE 2
-   #    # self._drawTriangle(v[2], v[3], v[7]) #SIDE 3
-   #    # self._drawTriangle(v[2], v[7], v[6]) #SIDE 3
-   #    # self._drawTriangle(v[0], v[3], v[7]) #SIDE 4
-   #    # self._drawTriangle(v[0], v[7], v[4]) #SIDE 4
-   #    # self._endDrawingBlock()
-
-   #    # self._setColor(0, 0, 0)
-
-   #    # self._startDrawingLines()
-   #    # self._drawLine(v[0], v[1])
-   #    # self._drawLine(v[0], v[3])
-   #    # self._drawLine(v[0], v[4])
-   #    # self._drawLine(v[2], v[1])
-   #    # self._drawLine(v[2], v[3])
-   #    # self._drawLine(v[2], v[6])
-   #    # self._drawLine(v[5], v[1])
-   #    # self._drawLine(v[5], v[4])
-   #    # self._drawLine(v[5], v[6])
-   #    # self._drawLine(v[7], v[3])
-   #    # self._drawLine(v[7], v[4])
-   #    # self._drawLine(v[7], v[6])
-   #    # self._endDrawingBlock()
-
-   #    self._restoreColor()
-   
    def draw(self):
       self._drawTriangle()
       self._drawLines()
 
+   def export(self):
+      v = self.createVertices()
+
+      return {
+         'Vertices': [
+            [*v[0]], [*v[1]], [*v[2]],
+            [*v[0]], [*v[2]], [*v[3]],
+            [*v[4]], [*v[5]], [*v[6]],
+            [*v[4]], [*v[6]], [*v[7]],
+            [*v[0]], [*v[1]], [*v[5]],
+            [*v[0]], [*v[5]], [*v[4]],
+            [*v[1]], [*v[2]], [*v[6]],
+            [*v[1]], [*v[6]], [*v[5]],
+            [*v[2]], [*v[3]], [*v[7]],
+            [*v[2]], [*v[7]], [*v[6]],
+            [*v[0]], [*v[3]], [*v[7]],
+            [*v[0]], [*v[7]], [*v[4]],
+         ]
+         , 'Colors': self._generateColorArray(self.figureColor, self.size).tolist()
+         , 'LineVertices': [
+            [*v[0]], [*v[1]],
+            [*v[0]], [*v[3]],
+            [*v[0]], [*v[4]],
+            [*v[2]], [*v[1]],
+            [*v[2]], [*v[3]],
+            [*v[2]], [*v[6]],
+            [*v[5]], [*v[1]],
+            [*v[5]], [*v[4]],
+            [*v[5]], [*v[6]],
+            [*v[7]], [*v[3]],
+            [*v[7]], [*v[4]],
+            [*v[7]], [*v[6]],
+         ]
+         , 'LineColor': [0, 0, 0]
+         , 'Indicies': []
+      }
+
    def setup(self):
       v = np.array(self.createVertices())
       self.size = self._bindVertexData(self.vertex_buffer_id, np.array([
-         *v[0], *v[1], *v[2],
-         *v[0], *v[2], *v[3],
-         *v[4], *v[5], *v[6],
-         *v[4], *v[6], *v[7],
-         *v[0], *v[1], *v[5],
-         *v[0], *v[5], *v[4],
-         *v[1], *v[2], *v[6],
-         *v[1], *v[6], *v[5],
-         *v[2], *v[3], *v[7],
-         *v[2], *v[7], *v[6],
-         *v[0], *v[3], *v[7],
-         *v[0], *v[7], *v[4],
+         v[0], v[1], v[2],
+         v[0], v[2], v[3],
+         v[4], v[5], v[6],
+         v[4], v[6], v[7],
+         v[0], v[1], v[5],
+         v[0], v[5], v[4],
+         v[1], v[2], v[6],
+         v[1], v[6], v[5],
+         v[2], v[3], v[7],
+         v[2], v[7], v[6],
+         v[0], v[3], v[7],
+         v[0], v[7], v[4],
       ], dtype=np.float32))
 
-      self._bindColorData(self.vertex_color_id, np.array(self._state.currentColor, dtype=np.float32), self.size)
+      self._bindColorData(self.vertex_color_id, np.array(self.figureColor, dtype=np.float32), self.size)
 
       self.lineSize = self._bindVertexData(self.line_buffer_id, np.array([
-         *v[0], *v[1],
-         *v[0], *v[3],
-         *v[0], *v[4],
-         *v[2], *v[1],
-         *v[2], *v[3],
-         *v[2], *v[6],
-         *v[5], *v[1],
-         *v[5], *v[4],
-         *v[5], *v[6],
-         *v[7], *v[3],
-         *v[7], *v[4],
-         *v[7], *v[6],
+         v[0], v[1],
+         v[0], v[3],
+         v[0], v[4],
+         v[2], v[1],
+         v[2], v[3],
+         v[2], v[6],
+         v[5], v[1],
+         v[5], v[4],
+         v[5], v[6],
+         v[7], v[3],
+         v[7], v[4],
+         v[7], v[6],
       ], dtype=np.float32))
 
       self._bindColorData(self.line_color_id, np.array(self._state.currentLineColor, dtype=np.float32), self.size)

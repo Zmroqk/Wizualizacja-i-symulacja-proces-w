@@ -9,6 +9,6 @@ class ColorCommand(Command):
       self.b = float(params[2])
 
    def execute(self):
-      self._state.currentColor = [self.r, self.g, self.b]
       if self._state.currentFigure is not None:
+         self._state.currentFigure.figureColor = [self.r, self.g, self.b]
          self._state.currentFigure.setup()

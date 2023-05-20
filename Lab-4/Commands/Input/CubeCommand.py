@@ -8,5 +8,7 @@ class CubeCommand(Command):
       self.a = float(params[0])
 
    def execute(self):
-      self._state.currentFigure = Figures.Cube(self._state, self.a)
-      self._state.currentFigure.setup()
+      cube = Figures.Cube(self._state, self.a)
+      self._state.figures[cube.id] = cube
+      print(cube.id, self._state.figures)
+      cube.setup()
