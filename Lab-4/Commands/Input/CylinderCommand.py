@@ -9,5 +9,6 @@ class CylinderCommand(Command):
       self.h = float(params[1])
 
    def execute(self):
-      self._state.currentFigure = Figures.Cylinder(self._state, self.r, self.h)
-      self._state.currentFigure.setup()
+      cylinder = Figures.Cylinder(self._state, self.r, self.h)
+      self._state.figures[cylinder.id] = cylinder
+      cylinder.setup()

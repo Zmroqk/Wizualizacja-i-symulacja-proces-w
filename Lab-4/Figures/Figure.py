@@ -4,6 +4,7 @@ from windowState import WindowState
 import numpy as np
 import ctypes
 from idGenerator import IdGenerator
+from IO.FigureFileSchema import FigureFileSchema
 
 class Figure(ABC):
    def __init__(self, state: WindowState):
@@ -36,7 +37,7 @@ class Figure(ABC):
       pass
 
    @abstractmethod
-   def export(self):
+   def export(self) -> FigureFileSchema:
       pass
 
    def toString(self):

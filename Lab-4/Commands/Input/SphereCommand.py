@@ -9,5 +9,6 @@ class SphereCommand(Command):
       self.rings = int(params[1])
 
    def execute(self):
-      self._state.currentFigure = Figures.Sphere(self._state, self.r, self.rings)
-      self._state.currentFigure.setup()
+      sphere = Figures.Sphere(self._state, self.r, self.rings)
+      self._state.figures[sphere.id] = sphere
+      sphere.setup()

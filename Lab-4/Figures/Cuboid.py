@@ -48,8 +48,8 @@ class Cuboid(Figure):
             [*v[7]], [*v[4]],
             [*v[7]], [*v[6]],
          ]
-         , 'LineColor': [0, 0, 0]
-         , 'Indicies': []
+         , 'LineColor': self._state.currentLineColor
+         , 'Indices': []
       }
 
    def setup(self):

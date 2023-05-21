@@ -18,3 +18,5 @@ from .CameraFarCommand import CameraFarCommand
 from .CameraNearCommand import CameraNearCommand
 from .ReadFigureCommand import ReadFigureCommand
 from .ExportCommand import ExportCommand
+from .ChangeCameraCommand import ChangeCameraCommand
+from .RemoveCommand import RemoveCommand

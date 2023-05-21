@@ -9,5 +9,6 @@ class ConeCommand(Command):
       self.h = float(params[1])
 
    def execute(self):
-      self._state.currentFigure = Figures.Cone(self._state, self.r, self.h)
-      self._state.currentFigure.setup()
+      cone = Figures.Cone(self._state, self.r, self.h)
+      self._state.figures[cone.id] = cone
+      cone.setup()

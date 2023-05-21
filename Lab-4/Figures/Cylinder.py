@@ -1,3 +1,4 @@
+from IO.FigureFileSchema import FigureFileSchema
 from Figures.Figure import Figure
 from Figures.Circle import Circle
 from windowState import WindowState
@@ -12,16 +13,22 @@ class Cylinder(Figure):
       self.circleLow = Circle(self._state, self.radius, is2d=False)
       self.circleHigh = Circle(self._state, self.radius, is2d=False, x = 0, y = self.h)
 
-   def setup(self):
-      vLow = self.circleLow.createVertices()
-      vHigh = self.circleHigh.createVertices()
-      
+   def setup(self):  
       self.circleHigh.setup()
       self.circleLow.setup()
-      
+      vOut, vLinesOut = self._createVerticiesArray()
+
+      self.size = self._bindVertexData(self.vertex_buffer_id, np.array(vOut, dtype=np.float32))
+      self._bindColorData(self.vertex_color_id, np.array(self.figureColor, dtype=np.float32), self.size)
+
+      self.lineSize = self._bindVertexData(self.line_buffer_id, np.array(vLinesOut, dtype=np.float32))
+      self._bindColorData(self.line_color_id, np.array(self._state.currentLineColor, dtype=np.float32), self.size)      
+
+   def _createVerticiesArray(self):
+      vLow = self.circleLow.createVertices()
+      vHigh = self.circleHigh.createVertices()
       vOut = []
       vLinesOut = []
-      
       for i in range(len(vLow) - 1):
          vOut.append(vLow[i])
          vOut.append(vLow[i + 1])
@@ -30,11 +37,9 @@ class Cylinder(Figure):
          vOut.append(vHigh[i])
          vOut.append(vHigh[i + 1])
          vOut.append(vLow[i + 1])
-
       vOut.append(vLow[0])
       vOut.append(vLow[-1])
       vOut.append(vHigh[0])
-
       vOut.append(vHigh[0])
       vOut.append(vHigh[-1])
       vOut.append(vLow[-1])
@@ -43,11 +48,17 @@ class Cylinder(Figure):
          vLinesOut.append(vLow[i])
          vLinesOut.append(vHigh[i])
 
-      self.size = self._bindVertexData(self.vertex_buffer_id, np.array(vOut, dtype=np.float32))
-      self._bindColorData(self.vertex_color_id, np.array(self._state.currentColor, dtype=np.float32), self.size)
+      return vOut, vLinesOut
 
-      self.lineSize = self._bindVertexData(self.line_buffer_id, np.array(vLinesOut, dtype=np.float32))
-      self._bindColorData(self.line_color_id, np.array(self._state.currentLineColor, dtype=np.float32), self.size)      
+   def export(self) -> FigureFileSchema:
+      vOut, vLinesOut = self._createVerticiesArray()
+      return {
+         'Vertices': np.array(vOut, dtype=np.float32).tolist()
+         , 'Colors': self._generateColorArray(self.figureColor, self.size).tolist()
+         , 'Indices': []
+         , 'LineVertices': np.array(vLinesOut, dtype=np.float32).tolist()
+         , 'LineColor': self._state.currentLineColor
+      }
 
    def draw(self):
       self.circleLow.draw()

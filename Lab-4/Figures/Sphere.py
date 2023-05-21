@@ -1,3 +1,4 @@
+from IO.FigureFileSchema import FigureFileSchema
 from Figures.Figure import Figure
 from Figures.Circle import Circle
 from windowState import WindowState
@@ -10,13 +11,11 @@ class Sphere(Figure):
       self.radius = radius
       self.rings = rings
 
-
-   def setup(self):
-      rotationChange = np.pi/(self.rings)
-      circles = self.createVertices()
-
+   def _createVerticiesArray(self):
       vOut = []
       vLinesOut = []
+      rotationChange = np.pi/(self.rings)
+      circles = self.createVertices()
 
       for circle in circles:
          for j in range(len(circle) - 1):
@@ -54,13 +53,25 @@ class Sphere(Figure):
             vLinesOut.append(circle[0])
             vLinesOut.append(circle[0])
             vLinesOut.append(vo.applyRotationSingle(circle[-1], rotationChange, vo.Rotation.OZ))
+      return vOut, vLinesOut
 
-
+   def setup(self):
+      vOut, vLinesOut = self._createVerticiesArray()
       self.size = self._bindVertexData(self.vertex_buffer_id, np.array(vOut, dtype=np.float32))
-      self._bindColorData(self.vertex_color_id, np.array(self._state.currentColor, dtype=np.float32), self.size)
+      self._bindColorData(self.vertex_color_id, np.array(self.figureColor, dtype=np.float32), self.size)
 
       self.lineSize = self._bindVertexData(self.line_buffer_id, np.array(vLinesOut, dtype=np.float32))
       self._bindColorData(self.line_color_id, np.array(self._state.currentLineColor, dtype=np.float32), self.size)
+
+   def export(self) -> FigureFileSchema:
+      vOut, vLinesOut = self._createVerticiesArray()
+      return {
+         'Indices': []
+         , 'Vertices': np.array(vOut, dtype=np.float32).tolist()
+         , 'Colors': self._generateColorArray(self.figureColor, self.size).tolist()
+         , 'LineColor': self._state.currentLineColor
+         , 'LineVertices': np.array(vLinesOut, dtype=np.float32).tolist()
+      }
 
    def draw(self):
       self._drawTriangle()

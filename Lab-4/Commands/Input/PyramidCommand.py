@@ -9,5 +9,6 @@ class PyramidCommand(Command):
       self.h = float(params[1])
 
    def execute(self):
-      self._state.currentFigure = Figures.Pyramid(self._state, self.d, self.h)
-      self._state.currentFigure.setup()
+      pyramid = Figures.Pyramid(self._state, self.d, self.h)
+      self._state.figures[pyramid.id] = pyramid
+      pyramid.setup()

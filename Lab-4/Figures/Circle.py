@@ -1,3 +1,4 @@
+from IO.FigureFileSchema import FigureFileSchema
 from OpenGL.GL import *
 from Figures.Figure import Figure
 from windowState import WindowState
@@ -22,7 +23,7 @@ class Circle(Figure):
       v = self.createVertices()
       
       self.size = self._bindVertexData(self.vertex_buffer_id, np.array(v, dtype=np.float32))
-      self._bindColorData(self.vertex_color_id, np.array(self._state.currentColor, dtype=np.float32), self.size)
+      self._bindColorData(self.vertex_color_id, np.array(self.figureColor, dtype=np.float32), self.size)
    
    def createVertices(self):
       if(self.polygonSideLength is not None):
@@ -73,3 +74,6 @@ class Circle(Figure):
    
    def draw(self):
       self._drawTriangleFans()
+
+   def export(self) -> FigureFileSchema:
+      return {}

@@ -74,4 +74,8 @@ class InputCommand(Command):
          InputCommands.ReadFigureCommand(self._state, *params).execute()
       elif command.startswith('EXPORT'):
          InputCommands.ExportCommand(self._state, *params).execute()
+      elif command.startswith('CHANGE-CAMERA'):
+         InputCommands.ChangeCameraCommand(self._state).execute()
+      elif command.startswith('REMOVE'):
+         InputCommands.RemoveCommand(self._state, *params).execute()
       

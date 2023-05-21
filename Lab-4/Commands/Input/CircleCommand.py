@@ -8,5 +8,6 @@ class CircleCommand(Command):
       self.psl = float(params[0])
 
    def execute(self):
-      self._state.currentFigure = Figures.Circle(self._state, polygonSideLength=self.psl, is2d=True)
-      self._state.currentFigure.setup()
+      circle = Figures.Circle(self._state, polygonSideLength=self.psl, is2d=True)
+      self._state.figures[circle.id] = circle
+      circle.setup()
