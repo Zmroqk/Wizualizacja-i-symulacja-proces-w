@@ -13,10 +13,10 @@ def perspectiveCameraMatrix(near = 1, far = 10, left = -1, right = 1, bottom = -
       [0, 0, -1, 0],
    ], dtype=np.float32)
 
-def _setupCamera(mvp, rotX = 0, rotZ = 0, distance = 2):
-   x = distance * np.sin(rotX)
-   y = 0
-   z = distance * np.cos(rotZ)
+def _setupCamera(mvp, rotX = 0, rotZ = 0, distance = 2, state = None):
+   x = distance * np.sin(rotX) * np.cos(rotZ)
+   y = np.sin(rotZ)
+   z = distance * np.cos(rotX) * np.cos(rotZ)
    xyz = np.array([x, y, z], dtype=np.float32)
    target = np.array([0, 0, 0], dtype = np.float32)
    direction = xyz - target
@@ -24,6 +24,8 @@ def _setupCamera(mvp, rotX = 0, rotZ = 0, distance = 2):
    up = np.array([0, 1, 0], dtype = np.float32)
    right = np.cross(direction, up) * -1
    up = np.cross(right, direction) * -1
+   if state is not None:
+      state.cameraDirection = direction
 
    mvp2 = np.array([
       [1, 0, 0, -xyz[0]],
@@ -52,8 +54,8 @@ def ortographicCameraMatrix(near = 1, far = 10, left = -1, right = 1, bottom = -
       [0, 0, 0, 1],
    ], dtype=np.float32)
 
-def getCamera(cameraType: CameraType, distance = 2, rotX = 0, rotZ = 0, near = 1, far = 10):
+def getCamera(cameraType: CameraType, distance = 2, rotX = 0, rotZ = 0, near = 1, far = 10, state = None):
    if cameraType == CameraType.Ortographic:
-      return _setupCamera(ortographicCameraMatrix(near = near, far = far), distance = distance)
+      return _setupCamera(ortographicCameraMatrix(near = near, far = far), distance = distance, state=state)
    else:
-      return _setupCamera(perspectiveCameraMatrix(near = near, far = far), distance = distance, rotX = rotX, rotZ = rotZ)
+      return _setupCamera(perspectiveCameraMatrix(near = near, far = far), distance = distance, rotX = rotX, rotZ = rotZ, state=state)

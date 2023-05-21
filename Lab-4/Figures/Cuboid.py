@@ -93,3 +93,12 @@ class Cuboid(Figure):
          [-self.a/2, -self.b/2, -self.c/2], [self.a/2, -self.b/2, -self.c/2], [self.a/2, -self.b/2, self.c/2], [-self.a/2, -self.b/2, self.c/2],
          [-self.a/2, self.b/2, -self.c/2], [self.a/2, self.b/2, -self.c/2], [self.a/2, self.b/2, self.c/2], [-self.a/2, self.b/2, self.c/2],
       ]
+   
+   """
+   Experimental
+   """
+   def createVerticiesCameraDirection(self):
+      return [
+         [-self.a/2 + self._state.cameraDirection[0] * 2, -self.b/2, -self.c/2 + -self._state.cameraDirection[2] * 2], [self.a/2 + self._state.cameraDirection[0] * 2, -self.b/2, -self.c/2 + -self._state.cameraDirection[2] * 2], [self.a/2 + self._state.cameraDirection[0] * 2, -self.b/2, self.c/2 + -self._state.cameraDirection[2] * 2], [-self.a/2 + self._state.cameraDirection[0] * 2, -self.b/2, self.c/2 + -self._state.cameraDirection[2] * 2],
+         [-self.a/2 + self._state.cameraDirection[0] * 2, self.b/2, -self.c/2 + -self._state.cameraDirection[2] * 2], [self.a/2 + self._state.cameraDirection[0] * 2, self.b/2, -self.c/2 + -self._state.cameraDirection[2] * 2], [self.a/2 + self._state.cameraDirection[0] * 2, self.b/2, self.c/2 + -self._state.cameraDirection[2] * 2], [-self.a/2 + self._state.cameraDirection[0] * 2, self.b/2, self.c/2 + -self._state.cameraDirection[2] * 2],
+      ]

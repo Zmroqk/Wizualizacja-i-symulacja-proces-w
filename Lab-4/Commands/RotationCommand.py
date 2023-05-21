@@ -15,7 +15,7 @@ class RotationCommand(Command):
          elif self.key == glfw.KEY_L:
             self._state.cameraXRotation = self._state.cameraXRotation - np.pi/self._state.rotationQuality
          elif self.key == glfw.KEY_I:
-            self._state.cameraZRotation = self._state.cameraZRotation - np.pi/self._state.rotationQuality
+            self._state.cameraZRotation = self._state.cameraZRotation + np.pi/self._state.rotationQuality
          elif self.key == glfw.KEY_K:
             self._state.cameraZRotation = self._state.cameraZRotation - np.pi/self._state.rotationQuality
       if self._state.currentFigure is not None:

@@ -96,6 +96,7 @@ class Window_glfw:
             , rotZ = self.state.cameraZRotation
             , near = self.state.cameraNear
             , far = self.state.cameraFar
+            , state = self.state
          ))   
          for figure in self.state.figures.values():
             gl.glUniform3f(self.matrixLocationId, *figure.getPosition())
