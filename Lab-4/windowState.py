@@ -14,7 +14,7 @@ class WindowState:
       self.cameraZRotation = 0
       self.cameraNear = 1
       self.cameraFar = 10
-      self.cameraDirection = [0, 0, 1]
+      self.cameraTarget = [0, 0, 1]
       import Figures
       self.currentFigure : Figures.Figure = None
       self.figures : typing.Dict[int, Figures.Figure] = {}

@@ -8,6 +8,7 @@ import vectorOperations as vo
 class Cylinder(Figure):
    def __init__(self, state: WindowState, radius: float, h: float):
       super().__init__(state)
+      self.type = 'Cylinder'
       self.radius = radius
       self.h = h
       self.circleLow = Circle(self._state, self.radius, is2d=False)
@@ -17,6 +18,8 @@ class Cylinder(Figure):
       self.circleHigh.setup()
       self.circleLow.setup()
       vOut, vLinesOut = self._createVerticiesArray()
+      vOut = vo.applyPosition(vOut, *self._state.cameraTarget)
+      vLinesOut = vo.applyPosition(vLinesOut, *self._state.cameraTarget)
 
       self.size = self._bindVertexData(self.vertex_buffer_id, np.array(vOut, dtype=np.float32))
       self._bindColorData(self.vertex_color_id, np.array(self.figureColor, dtype=np.float32), self.size)

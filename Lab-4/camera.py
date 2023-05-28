@@ -15,17 +15,20 @@ def perspectiveCameraMatrix(near = 1, far = 10, left = -1, right = 1, bottom = -
 
 def _setupCamera(mvp, rotX = 0, rotZ = 0, distance = 2, state = None):
    x = distance * np.sin(rotX) * np.cos(rotZ)
-   y = np.sin(rotZ)
+   y = distance * np.sin(rotZ)
    z = distance * np.cos(rotX) * np.cos(rotZ)
-   xyz = np.array([x, y, z], dtype=np.float32)
-   target = np.array([0, 0, 0], dtype = np.float32)
+   xyz = np.array([0, 0, 0], dtype=np.float32)
+   target = np.array([x, y, z], dtype = np.float32)
    direction = xyz - target
    direction = direction / np.linalg.norm(direction)
+   cameraDistance = distance - 2
+   xyz = np.array([direction[0] * cameraDistance, direction[1] * cameraDistance, direction[2] * cameraDistance], dtype=np.float32)
+
    up = np.array([0, 1, 0], dtype = np.float32)
-   right = np.cross(direction, up) * -1
-   up = np.cross(right, direction) * -1
+   right = np.cross(direction, up) * 1
+   up = np.cross(right, direction) * 1
    if state is not None:
-      state.cameraDirection = direction
+      state.cameraTarget = target
 
    mvp2 = np.array([
       [1, 0, 0, -xyz[0]],
@@ -43,7 +46,7 @@ def _setupCamera(mvp, rotX = 0, rotZ = 0, distance = 2, state = None):
    ], dtype=np.float32)
 
    mvpmat = np.matmul(mvp3, mvp2)
-   mvpmat = np.matmul(mvp, mvp2)
+   mvpmat = np.matmul(mvp, mvpmat)
    return mvpmat.transpose()
 
 def ortographicCameraMatrix(near = 1, far = 10, left = -1, right = 1, bottom = -1, top = 1):

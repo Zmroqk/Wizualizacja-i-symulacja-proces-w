@@ -43,8 +43,12 @@ class Window_glfw:
       glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 4)
       glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 6)
       glfw.swap_interval(1)
+      glfw.set_error_callback(self._printError)
       gl.glEnable(gl.GL_DEPTH_TEST)
       gl.glDepthFunc(gl.GL_LESS)
+
+   def _printError(self, code, description):
+      print(code, description)
 
    def _prepareShaders(self, vertexShaderCode, fragmentShaderCode):
       self.vertexShaderId = gl.glCreateShader(gl.GL_VERTEX_SHADER)

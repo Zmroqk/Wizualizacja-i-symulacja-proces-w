@@ -8,6 +8,7 @@ import vectorOperations as vo
 class Sphere(Figure):
    def __init__(self, state: WindowState, radius, rings):
       super().__init__(state)
+      self.type = 'Sphere'
       self.radius = radius
       self.rings = rings
 
@@ -57,6 +58,9 @@ class Sphere(Figure):
 
    def setup(self):
       vOut, vLinesOut = self._createVerticiesArray()
+      vOut = vo.applyPosition(vOut, *self._state.cameraTarget)
+      vLinesOut = vo.applyPosition(vLinesOut, *self._state.cameraTarget)
+
       self.size = self._bindVertexData(self.vertex_buffer_id, np.array(vOut, dtype=np.float32))
       self._bindColorData(self.vertex_color_id, np.array(self.figureColor, dtype=np.float32), self.size)
 

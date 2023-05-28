@@ -6,12 +6,13 @@ import vectorOperations as vo
 class Pyramid(Figure):
    def __init__(self, state: WindowState, d: float, h: float):
       super(Pyramid, self).__init__(state)
+      self.type = 'Pyramid'
       self.d = d
       self.h = h
     
 
    def setup(self):
-      v = self.createVertices()
+      v = vo.applyPosition(self.createVertices(), *self._state.cameraTarget)
 
       vOut = []
       vLinesOut = []

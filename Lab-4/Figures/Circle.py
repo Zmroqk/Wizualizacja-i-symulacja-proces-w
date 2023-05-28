@@ -8,6 +8,7 @@ import vectorOperations as vo
 class Circle(Figure):
    def __init__(self, state: WindowState, radius: float = None, polygonSideLength: float = None, is2d = True, x = 0., y = 0.):
       super().__init__(state)
+      self.type = 'Circle'
       self.polygonSideLength = None
       if radius is not None:
          self.radius = radius
@@ -20,7 +21,7 @@ class Circle(Figure):
       self.y = y
    
    def setup(self):
-      v = self.createVertices()
+      v = vo.applyPosition(self.createVertices(), *self._state.cameraTarget)
       
       self.size = self._bindVertexData(self.vertex_buffer_id, np.array(v, dtype=np.float32))
       self._bindColorData(self.vertex_color_id, np.array(self.figureColor, dtype=np.float32), self.size)

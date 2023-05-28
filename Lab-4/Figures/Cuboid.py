@@ -53,7 +53,7 @@ class Cuboid(Figure):
       }
 
    def setup(self):
-      v = np.array(self.createVertices())
+      v = np.array(applyPosition(self.createVertices(), *self._state.cameraTarget))
       self.size = self._bindVertexData(self.vertex_buffer_id, np.array([
          v[0], v[1], v[2],
          v[0], v[2], v[3],

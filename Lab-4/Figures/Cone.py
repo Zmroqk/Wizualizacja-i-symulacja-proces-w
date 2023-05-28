@@ -8,6 +8,7 @@ import vectorOperations as vo
 class Cone(Figure):
    def __init__(self, state: WindowState, radius: float, height: float):
       super().__init__(state)
+      self.type = 'Cone'
       self.radius = radius
       self.height = height
       self.circle = Circle(self._state, self.radius, is2d=False)
@@ -34,6 +35,8 @@ class Cone(Figure):
    def setup(self):
       self.circle.setup()
       vOut, vLinesOut = self._createVerticiesArray()
+      vOut = vo.applyPosition(vOut, *self._state.cameraTarget)
+      vLinesOut = vo.applyPosition(vLinesOut, *self._state.cameraTarget)
 
       self.size = self._bindVertexData(self.vertex_buffer_id, np.array(vOut, dtype=np.float32))
       self._bindColorData(self.vertex_color_id, np.array(self.figureColor, dtype=np.float32), self.size)

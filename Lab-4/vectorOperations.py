@@ -34,11 +34,9 @@ class Rotation(Enum):
    OZ = 3
 
 def applyPosition(vecArray: List[List[float]], x: float, y: float, z: float) -> List[List[float]] :
-   vCopy = list.copy(vecArray)
-   for vTemp in vCopy:
-      vTemp[0] += x; vTemp[1] += y; vTemp[2] += z
-    
-   return vCopy
+   def add(vec, x, y, z):
+      return [vec[0] + x, vec[1] + y, vec[2] + z]
+   return list(map(lambda vec: add(vec, x, y, z), vecArray))
 
 def applyRotationAll(vecArray: List[List[float]], angles) -> List[List[float]] :
    return list(map(lambda vec: rotateAll(vec, angles), vecArray))
