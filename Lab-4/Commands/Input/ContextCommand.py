@@ -10,7 +10,12 @@ class ContextCommand(Command):
          self.figureId = None
 
    def execute(self):
+      if self._state.currentFigure is not None:
+         self._state.currentFigure.figureColor = list(map(lambda x: x + 0.2, self._state.currentFigure.figureColor))
+         self._state.currentFigure.setup()
       if self.figureId is None:
          self._state.currentFigure = None
       else:
          self._state.currentFigure = self._state.figures[self.figureId]
+         self._state.currentFigure.figureColor = list(map(lambda x: x - 0.2, self._state.currentFigure.figureColor))
+         self._state.currentFigure.setup()

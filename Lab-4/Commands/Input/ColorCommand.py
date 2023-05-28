@@ -10,5 +10,5 @@ class ColorCommand(Command):
 
    def execute(self):
       if self._state.currentFigure is not None:
-         self._state.currentFigure.figureColor = [self.r, self.g, self.b]
+         self._state.currentFigure.figureColor = [self.r - 0.2, self.g - 0.2, self.b - 0.2]
          self._state.currentFigure.setup()
