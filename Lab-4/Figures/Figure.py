@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import List
 import OpenGL.GL as gl
 from windowState import WindowState
 import numpy as np
@@ -23,6 +24,8 @@ class Figure(ABC):
       self.lineSize = 0
       self.vertices_indices_size = 0
       self.type = None
+      self.triangles = []
+      self.verticies = []
 
    @abstractmethod
    def setup(self):
@@ -151,3 +154,68 @@ class Figure(ABC):
 
    def _bind_vao(self):
       gl.glBindVertexArray(self.vao)
+
+   def _generate_triangles_from_verticies(self, verticies: List[float]):
+      triangles = []
+      for i in range(0, len(verticies), 3):
+         triangles.append([verticies[i] + self.globalPosition, verticies[i+1] + self.globalPosition, verticies[i+2] + self.globalPosition])
+      self.triangles = np.array(triangles)
+
+   def _detect_collision(self, otherFigure):
+      self._generate_triangles_from_verticies(self.verticies)
+      otherFigure._generate_triangles_from_verticies(otherFigure.verticies)
+      for otherTriangle in otherFigure.triangles:
+         for triangle in self.triangles:
+            n2 = self.__n_param(otherTriangle)
+            d2 = self.__d_param(n2, otherTriangle)
+            if not self.__check_plane_overlap(d2, n2, triangle):
+               return False
+
+            n1 = self.__n_param(triangle)
+            d1 = self.__d_param(n1, triangle)
+            if not self.__check_plane_overlap(d1, n1, otherTriangle):
+               return False
+            
+            dv10 = np.matmul(n2, triangle[0]) + d2
+            dv11 = np.matmul(n2, triangle[1]) + d2
+            dv12 = np.matmul(n2, triangle[2]) + d2
+
+            dv20 = np.matmul(n1, otherTriangle[0]) + d1
+            dv21 = np.matmul(n1, otherTriangle[1]) + d1
+            dv22 = np.matmul(n1, otherTriangle[2]) + d1
+
+            D = np.matmul(n1, n2)
+            p10 = D * triangle[0]
+            p11 = D * triangle[1]
+            p12 = D * triangle[2]
+
+            p20 = D * otherTriangle[0]
+            p21 = D * otherTriangle[1]
+            p22 = D * otherTriangle[2]
+
+            t11 = p10 + (p11 - p10) * dv10 / (dv10 - dv11)
+            t12 = p12 + (p11 - p12) * dv12 / (dv12 - dv11)
+
+            t21 = p20 + (p21 - p20) * dv20 / (dv20 - dv21)
+            t22 = p22 + (p21 - p22) * dv22 / (dv22 - dv21)
+            print(t11, t12)
+            print(t21, t22)
+
+
+   def __2d_collisionCheck(self, triangle, otherTriangle):
+      pass
+
+   def __n_param(self, triangle: List[List[float]]):
+      return (triangle[1] - triangle[0]) * (triangle[2] - triangle[0])
+
+   def __d_param(self, n, triangle: List[List[float]]):
+      return np.matmul(-n, triangle[0])
+   
+   def __check_plane_overlap(self, d, n, triangle):
+      distance1 = np.matmul(n, triangle[0]) + d
+      distance2 = np.matmul(n, triangle[1]) + d
+      distance3 = np.matmul(n, triangle[2]) + d
+      if np.sign(distance1) == np.sign(distance2) == np.sign(distance3):
+         return False
+      return True
+      

@@ -106,6 +106,7 @@ class Window_glfw:
             gl.glUniform3f(self.matrixLocationId, *figure.getPosition())
             gl.glUniform3f(self.rotationLocationId, *figure.getRotation())
             figure.draw()
+         # self.state.detectCollisions() # Collisions
          # end draw
          glfw.swap_buffers(self.window)
          glfw.poll_events()

@@ -54,7 +54,8 @@ class Cuboid(Figure):
 
    def setup(self):
       v = np.array(applyPosition(self.createVertices(), *self._state.cameraTarget))
-      self.size = self._bindVertexData(self.vertex_buffer_id, np.array([
+
+      self.verticies = np.array([
          v[0], v[1], v[2],
          v[0], v[2], v[3],
          v[4], v[5], v[6],
@@ -67,7 +68,9 @@ class Cuboid(Figure):
          v[2], v[7], v[6],
          v[0], v[3], v[7],
          v[0], v[7], v[4],
-      ], dtype=np.float32))
+      ], dtype=np.float32)
+
+      self.size = self._bindVertexData(self.vertex_buffer_id, self.verticies)
 
       self._bindColorData(self.vertex_color_id, np.array(self.figureColor, dtype=np.float32), self.size)
 

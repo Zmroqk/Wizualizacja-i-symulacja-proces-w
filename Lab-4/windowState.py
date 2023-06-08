@@ -20,4 +20,8 @@ class WindowState:
       self.figures : typing.Dict[int, Figures.Figure] = {}
       self.currentCamera = camera.CameraType.Perspective
 
-   
+   def detectCollisions(self):
+      for key in self.figures.keys():
+         for keyOther in self.figures.keys():
+            if key != keyOther:
+               self.figures[key]._detect_collision(self.figures[keyOther])
