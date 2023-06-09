@@ -27,7 +27,7 @@ class Triangle(Figure):
       v = np.array(applyPosition(applyRotationAll(self.createVertices(), self.rotation), *self._state.cameraTarget))
 
       self.verticies = np.array([
-         v[0], v[1], v[2]
+         v[0], v[2], v[1]
       ], dtype=np.float32)
 
       self.size = self._bindVertexData(self.vertex_buffer_id, self.verticies)
