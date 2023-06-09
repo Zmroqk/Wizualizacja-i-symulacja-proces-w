@@ -20,3 +20,4 @@ from .ReadFigureCommand import ReadFigureCommand
 from .ExportCommand import ExportCommand
 from .ChangeCameraCommand import ChangeCameraCommand
 from .RemoveCommand import RemoveCommand
+from .TriangleCommand import TriangleCommand

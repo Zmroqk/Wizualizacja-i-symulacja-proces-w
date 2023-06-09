@@ -78,4 +78,6 @@ class InputCommand(Command):
          InputCommands.ChangeCameraCommand(self._state).execute()
       elif command.startswith('REMOVE'):
          InputCommands.RemoveCommand(self._state, *params).execute()
+      elif command.startswith('TRIANGLE'):
+         InputCommands.TriangleCommand(self._state).execute()
       

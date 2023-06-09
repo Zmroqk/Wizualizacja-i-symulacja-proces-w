@@ -185,24 +185,27 @@ class Figure(ABC):
             dv22 = np.matmul(n1, otherTriangle[2]) + d1
 
             if dv10 == dv11 == dv12 == 0 or dv20 == dv21 == dv22 == 0:
-               continue
+               if self.__2d_collisionCheck(triangle, otherTriangle):
+                  print('2D collision')
 
-            D = np.matmul(n1, n2)
-            p10 = D * triangle[0]
-            p11 = D * triangle[1]
-            p12 = D * triangle[2]
+            D = n1 * n2
+            #print(dv10, dv11, dv12, dv20, dv21, dv22)
+            #print(D)
+            p10 = np.matmul(D, triangle[0])
+            p11 = np.matmul(D, triangle[1])
+            p12 = np.matmul(D, triangle[2])
 
-            p20 = D * otherTriangle[0]
-            p21 = D * otherTriangle[1]
-            p22 = D * otherTriangle[2]
+            p20 = np.matmul(D, otherTriangle[0])
+            p21 = np.matmul(D, otherTriangle[1])
+            p22 = np.matmul(D, otherTriangle[2])
 
             t11 = p10 + (p11 - p10) * dv10 / (dv10 - dv11) # I think this should be scalar, also why we have divide by 0?
             t12 = p12 + (p11 - p12) * dv12 / (dv12 - dv11) # I think this should be scalar, also why we have divide by 0?
 
             t21 = p20 + (p21 - p20) * dv20 / (dv20 - dv21) # I think this should be scalar, also why we have divide by 0?
             t22 = p22 + (p21 - p22) * dv22 / (dv22 - dv21) # I think this should be scalar, also why we have divide by 0?
-
-            if self.__check_segments_overlap(t11, t12, t21, t22): # If t is scalar then this is wrong
+            print(t11, t12, t21, t22)
+            if t11 < t21 < t12 or t11 < t22 < t12 or t21 < t11 < t22 or t21 < t12 < t22:
                print('collision')
 
    def __check_segments_overlap(self, p1, p2, q1, q2):
@@ -217,7 +220,19 @@ class Figure(ABC):
       return minIntersection[0] < maxIntersection[0] and minIntersection[1] < maxIntersection[1] and minIntersection[2] < maxIntersection[2]
 
    def __2d_collisionCheck(self, triangle, otherTriangle):
-      pass
+      for point in otherTriangle:
+         if self.__sameSide(point, triangle[0], triangle[1], triangle[2]) \
+            and self.__sameSide(point, triangle[1], triangle[0], triangle[2]) \
+            and self.__sameSide(point, triangle[2], triangle[0], triangle[1]):
+            return True
+      return False
+
+   def __sameSide(self, p1, p2, a, b):
+      cp1 = np.cross(b - a, p1 - a)
+      cp2 = np.cross(b - a, p2 - a)
+      if np.dot(cp1, cp2) >= 0:
+         return True
+      return False
 
    def __n_param(self, triangle: List[List[float]]):
       return (triangle[1] - triangle[0]) * (triangle[2] - triangle[0])
