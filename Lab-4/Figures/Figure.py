@@ -184,6 +184,9 @@ class Figure(ABC):
             dv21 = np.matmul(n1, otherTriangle[1]) + d1
             dv22 = np.matmul(n1, otherTriangle[2]) + d1
 
+            if dv10 == dv11 == dv12 == 0 or dv20 == dv21 == dv22 == 0:
+               continue
+
             D = np.matmul(n1, n2)
             p10 = D * triangle[0]
             p11 = D * triangle[1]
@@ -193,14 +196,25 @@ class Figure(ABC):
             p21 = D * otherTriangle[1]
             p22 = D * otherTriangle[2]
 
-            t11 = p10 + (p11 - p10) * dv10 / (dv10 - dv11)
-            t12 = p12 + (p11 - p12) * dv12 / (dv12 - dv11)
+            t11 = p10 + (p11 - p10) * dv10 / (dv10 - dv11) # I think this should be scalar, also why we have divide by 0?
+            t12 = p12 + (p11 - p12) * dv12 / (dv12 - dv11) # I think this should be scalar, also why we have divide by 0?
 
-            t21 = p20 + (p21 - p20) * dv20 / (dv20 - dv21)
-            t22 = p22 + (p21 - p22) * dv22 / (dv22 - dv21)
-            print(t11, t12)
-            print(t21, t22)
+            t21 = p20 + (p21 - p20) * dv20 / (dv20 - dv21) # I think this should be scalar, also why we have divide by 0?
+            t22 = p22 + (p21 - p22) * dv22 / (dv22 - dv21) # I think this should be scalar, also why we have divide by 0?
 
+            if self.__check_segments_overlap(t11, t12, t21, t22): # If t is scalar then this is wrong
+               print('collision')
+
+   def __check_segments_overlap(self, p1, p2, q1, q2):
+      min1 = [np.minimum(p1[0], p2[0]), np.minimum(p1[1], p2[1]), np.minimum(p1[2], p2[2])]
+      max1 = [np.maximum(p1[0], p2[0]), np.maximum(p1[1], p2[1]), np.maximum(p1[2], p2[2])]
+      min2 = [np.minimum(q1[0], q2[0]), np.minimum(q1[1], q2[1]), np.minimum(q1[2], q2[2])]
+      max2 = [np.maximum(q1[0], q2[0]), np.maximum(q1[1], q2[1]), np.maximum(q1[2], q2[2])]
+      
+      minIntersection = [np.maximum(min1[0], min2[0]), np.maximum(min1[1], min2[1]), np.maximum(min1[2], min2[2])]
+      maxIntersection = [np.minimum(max1[0], max2[0]), np.minimum(max1[1], max2[1]), np.minimum(max1[2], max2[2])]
+
+      return minIntersection[0] < maxIntersection[0] and minIntersection[1] < maxIntersection[1] and minIntersection[2] < maxIntersection[2]
 
    def __2d_collisionCheck(self, triangle, otherTriangle):
       pass
@@ -215,7 +229,7 @@ class Figure(ABC):
       distance1 = np.matmul(n, triangle[0]) + d
       distance2 = np.matmul(n, triangle[1]) + d
       distance3 = np.matmul(n, triangle[2]) + d
-      if np.sign(distance1) == np.sign(distance2) == np.sign(distance3):
+      if (distance1 != 0 or distance2 != 0 or distance3 != 0) and np.sign(distance1) == np.sign(distance2) == np.sign(distance3):
          return False
       return True
       
