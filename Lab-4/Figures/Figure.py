@@ -168,12 +168,12 @@ class Figure(ABC):
          for triangle in self.triangles:
             n2 = self.__n_param(otherTriangle)
             d2 = self.__d_param(n2, otherTriangle)
-            if not self.__check_plane_overlap(d2, n2, triangle):
+            if self.__check_plane_overlap(d2, n2, triangle) is False:
                continue
 
             n1 = self.__n_param(triangle)
             d1 = self.__d_param(n1, triangle)
-            if not self.__check_plane_overlap(d1, n1, otherTriangle):
+            if self.__check_plane_overlap(d1, n1, otherTriangle) is False:
                continue
             
             dv10 = np.matmul(n2, triangle[0]) + d2
@@ -184,29 +184,44 @@ class Figure(ABC):
             dv21 = np.matmul(n1, otherTriangle[1]) + d1
             dv22 = np.matmul(n1, otherTriangle[2]) + d1
 
-            if dv10 == dv11 == dv12 == 0 or dv20 == dv21 == dv22 == 0:
+            if dv10 == dv11 == dv12 == 0:
                if self.__2d_collisionCheck(triangle, otherTriangle):
                   print('2D collision')
 
             D = n1 * n2
             #print(dv10, dv11, dv12, dv20, dv21, dv22)
             #print(D)
-            p10 = np.matmul(D, triangle[0])
-            p11 = np.matmul(D, triangle[1])
-            p12 = np.matmul(D, triangle[2])
+            p10 = self.__get_p_param(triangle[0], D)
+            p11 = self.__get_p_param(triangle[1], D)
+            p12 = self.__get_p_param(triangle[2], D)
+            #p10 = np.matmul(D, triangle[0])
+            #p11 = np.matmul(D, triangle[1])
+            #p12 = np.matmul(D, triangle[2])
 
-            p20 = np.matmul(D, otherTriangle[0])
-            p21 = np.matmul(D, otherTriangle[1])
-            p22 = np.matmul(D, otherTriangle[2])
+            p20 = self.__get_p_param(otherTriangle[0], D)
+            p21 = self.__get_p_param(otherTriangle[1], D)
+            p22 = self.__get_p_param(otherTriangle[2], D)
+            #p20 = np.matmul(D, otherTriangle[0])
+            #p21 = np.matmul(D, otherTriangle[1])
+            #p22 = np.matmul(D, otherTriangle[2])
 
             t11 = p10 + (p11 - p10) * dv10 / (dv10 - dv11) # I think this should be scalar, also why we have divide by 0?
-            t12 = p12 + (p11 - p12) * dv12 / (dv12 - dv11) # I think this should be scalar, also why we have divide by 0?
+            t12 = p11 + (p12 - p11) * dv11 / (dv11 - dv12) # I think this should be scalar, also why we have divide by 0?
 
             t21 = p20 + (p21 - p20) * dv20 / (dv20 - dv21) # I think this should be scalar, also why we have divide by 0?
-            t22 = p22 + (p21 - p22) * dv22 / (dv22 - dv21) # I think this should be scalar, also why we have divide by 0?
+            t22 = p21 + (p22 - p21) * dv21 / (dv21 - dv22) # I think this should be scalar, also why we have divide by 0?
             print(t11, t12, t21, t22)
             if t11 < t21 < t12 or t11 < t22 < t12 or t21 < t11 < t22 or t21 < t12 < t22:
                print('collision')
+
+   def __get_p_param(self, vertex, D):
+      absD = np.absolute(D)
+      if np.absolute(D[0]) == np.max(absD):
+         return vertex[0]
+      elif np.absolute(D[1]) == np.max(absD):
+         return vertex[1]
+      if np.absolute(D[2]) == np.max(absD):
+         return vertex[2]
 
    def __check_segments_overlap(self, p1, p2, q1, q2):
       min1 = [np.minimum(p1[0], p2[0]), np.minimum(p1[1], p2[1]), np.minimum(p1[2], p2[2])]
