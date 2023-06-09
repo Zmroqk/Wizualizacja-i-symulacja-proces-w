@@ -53,7 +53,7 @@ class Cuboid(Figure):
       }
 
    def setup(self):
-      v = np.array(applyPosition(self.createVertices(), *self._state.cameraTarget))
+      v = np.array(applyPosition(applyRotationAll(self.createVertices(), self.rotation), *self._state.cameraTarget))
 
       self.verticies = np.array([
          v[0], v[1], v[2],

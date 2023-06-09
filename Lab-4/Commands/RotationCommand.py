@@ -55,3 +55,4 @@ class RotationCommand(Command):
                , self._state.currentFigure.rotation[1]
                , self._state.currentFigure.rotation[2] + np.pi/self._state.rotationQuality
             ]
+         self._state.currentFigure.setup()

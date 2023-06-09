@@ -169,12 +169,12 @@ class Figure(ABC):
             n2 = self.__n_param(otherTriangle)
             d2 = self.__d_param(n2, otherTriangle)
             if not self.__check_plane_overlap(d2, n2, triangle):
-               return False
+               continue
 
             n1 = self.__n_param(triangle)
             d1 = self.__d_param(n1, triangle)
             if not self.__check_plane_overlap(d1, n1, otherTriangle):
-               return False
+               continue
             
             dv10 = np.matmul(n2, triangle[0]) + d2
             dv11 = np.matmul(n2, triangle[1]) + d2
