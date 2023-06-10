@@ -26,6 +26,7 @@ class Figure(ABC):
       self.type = None
       self.triangles = []
       self.verticies = []
+      self.isColliding = False
 
    @abstractmethod
    def setup(self):
@@ -170,13 +171,11 @@ class Figure(ABC):
             d2 = self.__d_param(n2, otherTriangle)
 
             if self.__check_plane_overlap(d2, n2, triangle) is False:
-               print('collision rejected')
                continue
 
             n1 = self.__n_param(triangle)
             d1 = self.__d_param(n1, triangle)
             if self.__check_plane_overlap(d1, n1, otherTriangle) is False:
-               print('collision rejected')
                continue
             
             dv10 = np.matmul(n2, triangle[0]) + d2
@@ -204,10 +203,15 @@ class Figure(ABC):
 
             t21 = p20 + (p21 - p20) * dv20 / (dv20 - dv21)
             t22 = p21 + (p22 - p21) * dv21 / (dv21 - dv22)
-            if t11 < t21 < t12 or t11 < t22 < t12 or t21 < t11 < t22 or t21 < t12 < t22:
-               print('collision')
-            else:
-               print('no collision')
+            if t11 < t21 < t12 or t11 < t22 < t12 or t21 < t11 < t22 or t21 < t12 < t22 \
+               or t11 > t21 > t12 or t11 > t22 > t12 or t21 > t11 > t22 or t21 > t12 > t22:
+               self.isColliding = True
+               self.setup()
+               return True
+            elif self.isColliding:
+               self.isColliding = False
+               self.setup()
+      return False
 
    def __get_p_param(self, vertex, D):
       absD = np.absolute(D)

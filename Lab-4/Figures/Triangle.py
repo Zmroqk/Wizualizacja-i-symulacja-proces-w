@@ -32,7 +32,10 @@ class Triangle(Figure):
 
       self.size = self._bindVertexData(self.vertex_buffer_id, self.verticies)
 
-      self._bindColorData(self.vertex_color_id, np.array(self.figureColor, dtype=np.float32), self.size)
+      if self.isColliding:
+         self._bindColorData(self.vertex_color_id, np.array([1, 0, 0], dtype=np.float32), self.size)
+      else:
+         self._bindColorData(self.vertex_color_id, np.array(self.figureColor, dtype=np.float32), self.size)
 
       self.lineSize = self._bindVertexData(self.line_buffer_id, np.array([
          v[0], v[1],
