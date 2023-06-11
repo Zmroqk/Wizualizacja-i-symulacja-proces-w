@@ -24,7 +24,8 @@ class Triangle(Figure):
       }
 
    def setup(self):
-      v = np.array(applyPosition(applyRotationAll(self.createVertices(), self.rotation), *self._state.cameraTarget))
+      position = self._state.cameraTarget + self.globalPosition
+      v = np.array(applyPosition(applyRotationAll(self.createVertices(), self.rotation), *position))
 
       self.verticies = np.array([
          v[0], v[2], v[1]

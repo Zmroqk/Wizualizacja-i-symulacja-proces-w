@@ -103,7 +103,7 @@ class Window_glfw:
             , state = self.state
          ))   
          for figure in self.state.figures.values():
-            gl.glUniform3f(self.matrixLocationId, *figure.getPosition())
+            gl.glUniform3f(self.matrixLocationId, 0, 0, 0)
             gl.glUniform3f(self.rotationLocationId, 0, 0, 0)
             figure.draw()
          self.state.detectCollisions() # Collisions

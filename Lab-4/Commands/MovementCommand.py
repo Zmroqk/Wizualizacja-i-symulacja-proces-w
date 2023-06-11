@@ -50,4 +50,5 @@ class MovementCommand(Command):
                , self._state.currentFigure.globalPosition[1]
                , self._state.currentFigure.globalPosition[2] + 0.1
             ]
+         self._state.currentFigure.setup()
       
