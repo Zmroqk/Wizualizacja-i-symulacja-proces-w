@@ -187,8 +187,10 @@ class Figure(ABC):
             dv22 = np.matmul(n1, otherTriangle[2]) + d1
 
             if dv10 == dv11 == dv12 == 0:
-               if self.__2d_collisionCheck(triangle, otherTriangle):
-                  print('2D collision')
+               if self.__2d_collisionCheck(triangle, otherTriangle) or self.__2d_collisionCheck(otherTriangle, triangle):
+                  self.isColliding = True
+                  self.setup()
+                  return True
 
             D = np.cross(n1, n2)
             p10 = self.__get_p_param(triangle[0], D)
@@ -208,9 +210,9 @@ class Figure(ABC):
                self.isColliding = True
                self.setup()
                return True
-            elif self.isColliding:
-               self.isColliding = False
-               self.setup()
+      if self.isColliding:
+         self.isColliding = False
+         self.setup()
       return False
 
    def __get_p_param(self, vertex, D):
