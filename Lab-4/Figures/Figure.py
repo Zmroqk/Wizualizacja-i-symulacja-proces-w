@@ -269,26 +269,6 @@ class Figure(ABC):
    def __get_p_param(self, vertex, D):
       return np.dot(D, vertex)
 
-      absD = np.absolute(D)
-      if np.absolute(D[0]) == np.max(absD):
-         return vertex[0]
-      elif np.absolute(D[1]) == np.max(absD):
-         return vertex[1]
-      elif np.absolute(D[2]) == np.max(absD):
-         return vertex[2]
-      return 0
-
-   def __check_segments_overlap(self, p1, p2, q1, q2):
-      min1 = [np.minimum(p1[0], p2[0]), np.minimum(p1[1], p2[1]), np.minimum(p1[2], p2[2])]
-      max1 = [np.maximum(p1[0], p2[0]), np.maximum(p1[1], p2[1]), np.maximum(p1[2], p2[2])]
-      min2 = [np.minimum(q1[0], q2[0]), np.minimum(q1[1], q2[1]), np.minimum(q1[2], q2[2])]
-      max2 = [np.maximum(q1[0], q2[0]), np.maximum(q1[1], q2[1]), np.maximum(q1[2], q2[2])]
-      
-      minIntersection = [np.maximum(min1[0], min2[0]), np.maximum(min1[1], min2[1]), np.maximum(min1[2], min2[2])]
-      maxIntersection = [np.minimum(max1[0], max2[0]), np.minimum(max1[1], max2[1]), np.minimum(max1[2], max2[2])]
-
-      return minIntersection[0] < maxIntersection[0] and minIntersection[1] < maxIntersection[1] and minIntersection[2] < maxIntersection[2]
-
    def __2d_collisionCheck(self, triangle, otherTriangle):
       for point in otherTriangle:
          if self.__sameSide(point, triangle[0], triangle[1], triangle[2]) \
