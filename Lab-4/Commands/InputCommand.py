@@ -80,4 +80,6 @@ class InputCommand(Command):
          InputCommands.RemoveCommand(self._state, *params).execute()
       elif command.startswith('TRIANGLE'):
          InputCommands.TriangleCommand(self._state).execute()
+      elif command.startswith('DEBUG'):
+         InputCommands.DebugCommand(self._state).execute()
       

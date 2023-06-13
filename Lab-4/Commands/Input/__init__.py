@@ -21,3 +21,4 @@ from .ExportCommand import ExportCommand
 from .ChangeCameraCommand import ChangeCameraCommand
 from .RemoveCommand import RemoveCommand
 from .TriangleCommand import TriangleCommand
+from .DebugCommand import DebugCommand
