@@ -82,4 +82,5 @@ class InputCommand(Command):
          InputCommands.TriangleCommand(self._state).execute()
       elif command.startswith('DEBUG'):
          InputCommands.DebugCommand(self._state).execute()
-      
+      elif command.startswith('LINE'):
+         InputCommands.LineCommand(self._state).execute()

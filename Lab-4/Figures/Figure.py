@@ -164,6 +164,26 @@ class Figure(ABC):
       self.triangles = np.array(triangles, dtype=np.float32)
 
    def _detect_collision(self, otherFigure: 'Figure'):
+      if self.type == 'Line' or otherFigure.type == 'Line':
+         if self.type == 'Line':
+            otherFigure._generate_triangles_from_verticies(otherFigure.verticies)
+            for otherTriangle in otherFigure.triangles:
+               if self.__2d_collisionCheck(otherTriangle, self.verticies):
+                  self.isColliding = True
+                  self.setup()
+                  return True
+         else:
+            self._generate_triangles_from_verticies(self.verticies)
+            for triangle in self.triangles:
+               if self.__2d_collisionCheck(triangle, otherFigure.verticies):
+                  self.isColliding = True
+                  self.setup()
+                  return True
+         if self.isColliding:
+            self.isColliding = False
+            self.setup()
+         return False
+
       self._generate_triangles_from_verticies(self.verticies)
       otherFigure._generate_triangles_from_verticies(otherFigure.verticies)
       for otherTriangle in otherFigure.triangles:
@@ -271,6 +291,9 @@ class Figure(ABC):
 
    def __2d_collisionCheck(self, triangle, otherTriangle):
       for point in otherTriangle:
+         if self._state.debug:
+            print('2d triangle', triangle)
+            print('point', point)
          if self.__sameSide(point, triangle[0], triangle[1], triangle[2]) \
             and self.__sameSide(point, triangle[1], triangle[0], triangle[2]) \
             and self.__sameSide(point, triangle[2], triangle[0], triangle[1]):

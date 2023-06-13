@@ -8,3 +8,4 @@ from Figures.Cone import Cone
 from Figures.Sphere import Sphere
 from .CustomFigure import CustomFigure
 from .Triangle import Triangle
+from .Line import Line

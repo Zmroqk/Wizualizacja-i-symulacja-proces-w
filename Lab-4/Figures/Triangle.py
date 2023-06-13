@@ -6,7 +6,7 @@ from windowState import WindowState
 class Triangle(Figure):
    def __init__(self, state: WindowState):
       super().__init__(state)
-      self.type = 'Cuboid'
+      self.type = 'Triangle'
 
    def draw(self):
       self._drawTriangle()
